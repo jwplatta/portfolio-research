@@ -1,0 +1,134 @@
+[
+  {
+    "version": 0,
+    "file": "v0.py",
+    "source_file": null,
+    "label": null
+  },
+  {
+    "version": 1,
+    "file": "v1_book_10_from_v0.py",
+    "source_file": "v0.py",
+    "label": "book_10_from_v0"
+  },
+  {
+    "version": 2,
+    "file": "v2_book_20_from_v0.py",
+    "source_file": "v0.py",
+    "label": "book_20_from_v0"
+  },
+  {
+    "version": 3,
+    "file": "v3_sector_neutral_from_v1.py",
+    "source_file": "v1_book_10_from_v0.py",
+    "label": "sector_neutral_from_v1"
+  },
+  {
+    "version": 4,
+    "file": "v4_proportional_weight_from_v1.py",
+    "source_file": "v1_book_10_from_v0.py",
+    "label": "proportional_weight_from_v1"
+  },
+  {
+    "version": 5,
+    "file": "v5_industry_balanced_from_v1.py",
+    "source_file": "v1_book_10_from_v0.py",
+    "label": "industry_balanced_from_v1"
+  },
+  {
+    "version": 6,
+    "file": "v6_raw_sector_relative_from_v1.py",
+    "source_file": "v1_book_10_from_v0.py",
+    "label": "raw_sector_relative_from_v1"
+  },
+  {
+    "version": 7,
+    "file": "v7_hybrid_sector_relative_from_v6.py",
+    "source_file": "v6_raw_sector_relative_from_v1.py",
+    "label": "hybrid_sector_relative_from_v6"
+  },
+  {
+    "version": 8,
+    "file": "v8_softer_beta_control_from_v6.py",
+    "source_file": "v6_raw_sector_relative_from_v1.py",
+    "label": "softer_beta_control_from_v6"
+  },
+  {
+    "version": 9,
+    "file": "v9_signal_blend_from_v6.py",
+    "source_file": "v6_raw_sector_relative_from_v1.py",
+    "label": "signal_blend_from_v6"
+  },
+  {
+    "version": 10,
+    "file": "v10_regime_gate_from_v6.py",
+    "source_file": "v6_raw_sector_relative_from_v1.py",
+    "label": "regime_gate_from_v6"
+  },
+  {
+    "version": 11,
+    "file": "v11_sector_balanced_from_v6.py",
+    "source_file": "v6_raw_sector_relative_from_v1.py",
+    "label": "sector_balanced_from_v6"
+  },
+  {
+    "version": 12,
+    "file": "v12_signal_abs_quantile_60_from_v6.py",
+    "source_file": "v6_raw_sector_relative_from_v1.py",
+    "label": "signal_abs_quantile_60_from_v6"
+  },
+  {
+    "version": 13,
+    "file": "v13_signal_abs_quantile_65_from_v6.py",
+    "source_file": "v6_raw_sector_relative_from_v1.py",
+    "label": "signal_abs_quantile_65_from_v6"
+  },
+  {
+    "version": 14,
+    "file": "v14_signal_blend_75_25_from_v6.py",
+    "source_file": "v6_raw_sector_relative_from_v1.py",
+    "label": "signal_blend_75_25_from_v6"
+  },
+  {
+    "version": 15,
+    "file": "v15_signal_blend_70_30_from_v14.py",
+    "source_file": "v14_signal_blend_75_25_from_v6.py",
+    "label": "signal_blend_70_30_from_v14"
+  },
+  {
+    "version": 16,
+    "file": "v16_signal_blend_65_35_from_v14.py",
+    "source_file": "v14_signal_blend_75_25_from_v6.py",
+    "label": "signal_blend_65_35_from_v14"
+  },
+  {
+    "version": 17,
+    "file": "v17_rebalance_20_from_v14.py",
+    "source_file": "v14_signal_blend_75_25_from_v6.py",
+    "label": "rebalance_20_from_v14"
+  },
+  {
+    "version": 18,
+    "file": "v18_benchmark_trend_scale_from_v14.py",
+    "source_file": "v14_signal_blend_75_25_from_v6.py",
+    "label": "benchmark_trend_scale_from_v14"
+  },
+  {
+    "version": 20,
+    "file": "v20_market_neutral_after_scaling_from_v18.py",
+    "source_file": "v18_benchmark_trend_scale_from_v14.py",
+    "label": "market_neutral_after_scaling_from_v18"
+  },
+  {
+    "version": 21,
+    "file": "v21_signal_blend_70_30_mkt_neutral_after_scaling_from_v18.py",
+    "source_file": "v18_benchmark_trend_scale_from_v14.py",
+    "label": "signal_blend_70_30_mkt_neutral_after_scaling_from_v18"
+  },
+  {
+    "version": 22,
+    "file": "v22_signal_blend_65_35_mkt_neutral_after_scaling_from_v18.py",
+    "source_file": "v18_benchmark_trend_scale_from_v14.py",
+    "label": "signal_blend_65_35_mkt_neutral_after_scaling_from_v18"
+  }
+]

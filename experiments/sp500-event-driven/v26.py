@@ -1,0 +1,4 @@
+from common import build_volume_shock_iteration_v21
+
+STUDY_NAME = "sp500_event_driven_v26_volume_shock_liquidity_150"
+study = build_volume_shock_iteration_v21(STUDY_NAME)

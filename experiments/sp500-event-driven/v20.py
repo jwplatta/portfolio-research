@@ -1,0 +1,4 @@
+from common import build_volume_shock_iteration_v15
+
+STUDY_NAME = "sp500_event_driven_v20_volume_shock_hold_10d_entry_delay"
+study = build_volume_shock_iteration_v15(STUDY_NAME)

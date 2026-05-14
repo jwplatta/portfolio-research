@@ -1,0 +1,63 @@
+[project]
+name = "portfolio-research"
+version = "0.1.0"
+description = "Research workspace for developing and evaluating trading ideas"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "backtrader>=1.9.78.123",
+    "ipykernel>=7.1.0",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.8",
+    "mplfinance>=0.12.10b0",
+    "numpy>=2.2.6",
+    "pandas>=2.3.3",
+    "ta>=0.11.0",
+    "streamlit>=1.50.0",
+    "python-dotenv>=1.0.1",
+    "scikit-learn",
+    "lean",
+    "simfin>=1.0.1",
+    "yfinance",
+    "seaborn",
+    "statsmodels",
+    "fredapi",
+    "trade-lab",
+    "tqdm>=4.67.3",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+    "ruff>=0.14.9",
+]
+
+[tool.uv.sources]
+trade-lab = { path = "../qstudy", editable = true }
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false

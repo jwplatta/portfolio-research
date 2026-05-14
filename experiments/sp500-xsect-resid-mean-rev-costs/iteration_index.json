@@ -1,0 +1,158 @@
+[
+  {
+    "version": 0,
+    "file": "v0.py",
+    "source_file": null,
+    "label": null
+  },
+  {
+    "version": 1,
+    "file": "v1_low_vol_filter.py",
+    "source_file": "v0.py",
+    "label": "low_vol_filter"
+  },
+  {
+    "version": 2,
+    "file": "v2_volume_filter.py",
+    "source_file": "v1_low_vol_filter.py",
+    "label": "volume_filter"
+  },
+  {
+    "version": 3,
+    "file": "v3_momentum_context.py",
+    "source_file": "v2_volume_filter.py",
+    "label": "momentum_context"
+  },
+  {
+    "version": 4,
+    "file": "v4_zscore_positions.py",
+    "source_file": "v3_momentum_context.py",
+    "label": "zscore_positions"
+  },
+  {
+    "version": 5,
+    "file": "v5_equity_regime.py",
+    "source_file": "v4_zscore_positions.py",
+    "label": "equity_regime"
+  },
+  {
+    "version": 6,
+    "file": "v6_benchmark_regime.py",
+    "source_file": "v5_equity_regime.py",
+    "label": "benchmark_regime"
+  },
+  {
+    "version": 7,
+    "file": "v7_residual_shock_filter.py",
+    "source_file": "v6_benchmark_regime.py",
+    "label": "residual_shock_filter"
+  },
+  {
+    "version": 8,
+    "file": "v8_slower_rebalance.py",
+    "source_file": "v7_residual_shock_filter.py",
+    "label": "slower_rebalance"
+  },
+  {
+    "version": 9,
+    "file": "v9_vol_scaled_signal.py",
+    "source_file": "v8_slower_rebalance.py",
+    "label": "vol_scaled_signal"
+  },
+  {
+    "version": 10,
+    "file": "v10_confirmation_filter.py",
+    "source_file": "v9_vol_scaled_signal.py",
+    "label": "confirmation_filter"
+  },
+  {
+    "version": 11,
+    "file": "v11_volume_filter_looser.py",
+    "source_file": "v2_volume_filter.py",
+    "label": "volume_filter_looser"
+  },
+  {
+    "version": 12,
+    "file": "v12_volume_filter_tighter.py",
+    "source_file": "v2_volume_filter.py",
+    "label": "volume_filter_tighter"
+  },
+  {
+    "version": 13,
+    "file": "v13_signal_window_3.py",
+    "source_file": "v2_volume_filter.py",
+    "label": "signal_window_3"
+  },
+  {
+    "version": 14,
+    "file": "v14_signal_window_7.py",
+    "source_file": "v2_volume_filter.py",
+    "label": "signal_window_7"
+  },
+  {
+    "version": 15,
+    "file": "v15_equity_regime_from_v2.py",
+    "source_file": "v2_volume_filter.py",
+    "label": "equity_regime_from_v2"
+  },
+  {
+    "version": 16,
+    "file": "v16_signal_window_9.py",
+    "source_file": "v14_signal_window_7.py",
+    "label": "signal_window_9"
+  },
+  {
+    "version": 17,
+    "file": "v17_signal_window_11.py",
+    "source_file": "v14_signal_window_7.py",
+    "label": "signal_window_11"
+  },
+  {
+    "version": 18,
+    "file": "v18_position_buffer_05.py",
+    "source_file": "v14_signal_window_7.py",
+    "label": "position_buffer_05"
+  },
+  {
+    "version": 19,
+    "file": "v19_position_buffer_10.py",
+    "source_file": "v14_signal_window_7.py",
+    "label": "position_buffer_10"
+  },
+  {
+    "version": 20,
+    "file": "v20_partial_rebalance_50.py",
+    "source_file": "v14_signal_window_7.py",
+    "label": "partial_rebalance_50"
+  },
+  {
+    "version": 21,
+    "file": "v21_signal_window_13.py",
+    "source_file": "v17_signal_window_11.py",
+    "label": "signal_window_13"
+  },
+  {
+    "version": 22,
+    "file": "v22_signal_window_15.py",
+    "source_file": "v17_signal_window_11.py",
+    "label": "signal_window_15"
+  },
+  {
+    "version": 23,
+    "file": "v23_weight_threshold_01.py",
+    "source_file": "v17_signal_window_11.py",
+    "label": "weight_threshold_01"
+  },
+  {
+    "version": 24,
+    "file": "v24_weight_threshold_02.py",
+    "source_file": "v17_signal_window_11.py",
+    "label": "weight_threshold_02"
+  },
+  {
+    "version": 25,
+    "file": "v25_weight_threshold_03.py",
+    "source_file": "v17_signal_window_11.py",
+    "label": "weight_threshold_03"
+  }
+]

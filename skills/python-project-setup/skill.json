@@ -1,0 +1,10 @@
+{
+  "name": "python-project-setup",
+  "version": "0.1.0",
+  "hash": "sha256:9310c5a4be2fd5d3f8dd4cfa47cf83c9aa74932130cf28386d031b54809128d8",
+  "dependencies": [],
+  "created": "2026-03-27T14:02:46.125721",
+  "updated": "2026-03-27T14:02:46.133380",
+  "author": "agent",
+  "description": "python-project-setup skill"
+}

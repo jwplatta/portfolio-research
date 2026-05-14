@@ -1,0 +1,66 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.qstudy-data/
+.qstudy.toml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+
+# Data files
+*.csv
+*.xlsx
+*.parquet
+./data/
+!notebooks/data/**
+notebooks/scratch
+notebooks/out
+qc/data
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Ruby
+Gemfile.lock
+vendor/
+.bundle/
+tmp/
+
+# Schwab tokens
+.schwab_rb/
+
+docs/examples
+/logs
+
+# QuantConnect
+lean.json
+/qc/**/config.json
+/qc/**/results.json
+/qc/**/backtests
+
+.codex/skills
+.claude/skills
+.gemini/skills
+.claude/settings.local.json
+NOTES.md

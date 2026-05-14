@@ -1,0 +1,4 @@
+from common import build_volume_shock_continuation_study
+
+STUDY_NAME = "sp500_event_driven_v6_volume_shock_baseline"
+study = build_volume_shock_continuation_study(STUDY_NAME)

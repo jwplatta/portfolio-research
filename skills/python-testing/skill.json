@@ -1,0 +1,10 @@
+{
+  "name": "python-testing",
+  "version": "0.1.0",
+  "hash": "sha256:525e9b69113b0e2ebcad4cdff355c7162a68691d5ef8dd9f613bfc67a41010a5",
+  "dependencies": [],
+  "created": "2026-03-27T14:02:48.389644",
+  "updated": "2026-03-27T14:02:48.392442",
+  "author": "agent",
+  "description": "python-testing skill"
+}

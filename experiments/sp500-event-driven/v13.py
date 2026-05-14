@@ -1,0 +1,4 @@
+from common import build_volume_shock_iteration_v8
+
+STUDY_NAME = "sp500_event_driven_v13_volume_shock_vol_adjusted_trend"
+study = build_volume_shock_iteration_v8(STUDY_NAME)

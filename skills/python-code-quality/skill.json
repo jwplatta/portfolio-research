@@ -1,0 +1,10 @@
+{
+  "name": "python-code-quality",
+  "version": "0.1.0",
+  "hash": "sha256:03035b31f4fbbeeebb2fbc9538d85569f313e22075b6623f26f6763f19fba6e9",
+  "dependencies": [],
+  "created": "2026-03-27T14:02:43.470672",
+  "updated": "2026-03-27T14:02:43.474807",
+  "author": "agent",
+  "description": "python-code-quality skill"
+}

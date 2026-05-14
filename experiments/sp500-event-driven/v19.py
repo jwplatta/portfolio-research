@@ -1,0 +1,4 @@
+from common import build_volume_shock_iteration_v14
+
+STUDY_NAME = "sp500_event_driven_v19_volume_shock_hold_10d_zscore"
+study = build_volume_shock_iteration_v14(STUDY_NAME)

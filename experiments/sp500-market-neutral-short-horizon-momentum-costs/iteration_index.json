@@ -1,0 +1,122 @@
+[
+  {
+    "version": 0,
+    "file": "v0.py",
+    "source_file": null,
+    "label": null
+  },
+  {
+    "version": 1,
+    "file": "v1_v1_rebalance_10d.py",
+    "source_file": "v0.py",
+    "label": "v1_rebalance_10d"
+  },
+  {
+    "version": 2,
+    "file": "v2_v2_rebalance_15d.py",
+    "source_file": "v1_v1_rebalance_10d.py",
+    "label": "v2_rebalance_15d"
+  },
+  {
+    "version": 3,
+    "file": "v3_v3_n15.py",
+    "source_file": "v2_v2_rebalance_15d.py",
+    "label": "v3_n15"
+  },
+  {
+    "version": 4,
+    "file": "v4_v4_n10.py",
+    "source_file": "v3_v3_n15.py",
+    "label": "v4_n10"
+  },
+  {
+    "version": 5,
+    "file": "v5_v5_inv_vol.py",
+    "source_file": "v4_v4_n10.py",
+    "label": "v5_inv_vol"
+  },
+  {
+    "version": 6,
+    "file": "v6_v6_signal_threshold.py",
+    "source_file": "v5_v5_inv_vol.py",
+    "label": "v6_signal_threshold"
+  },
+  {
+    "version": 7,
+    "file": "v7_v7_rebal10_n15.py",
+    "source_file": "v6_v6_signal_threshold.py",
+    "label": "v7_rebal10_n15"
+  },
+  {
+    "version": 8,
+    "file": "v8_v8_rebal10_n15_inv_vol.py",
+    "source_file": "v7_v7_rebal10_n15.py",
+    "label": "v8_rebal10_n15_inv_vol"
+  },
+  {
+    "version": 9,
+    "file": "v9_v9_window_15.py",
+    "source_file": "v8_v8_rebal10_n15_inv_vol.py",
+    "label": "v9_window_15"
+  },
+  {
+    "version": 10,
+    "file": "v10_v10_window_30.py",
+    "source_file": "v9_v9_window_15.py",
+    "label": "v10_window_30"
+  },
+  {
+    "version": 11,
+    "file": "v11_v11_rank_trigger.py",
+    "source_file": "v10_v10_window_30.py",
+    "label": "v11_rank_trigger"
+  },
+  {
+    "version": 12,
+    "file": "v12_v12_book_overlap_70.py",
+    "source_file": "v11_v11_rank_trigger.py",
+    "label": "v12_book_overlap_70"
+  },
+  {
+    "version": 13,
+    "file": "v13_v13_book_overlap_80.py",
+    "source_file": "v12_v12_book_overlap_70.py",
+    "label": "v13_book_overlap_80"
+  },
+  {
+    "version": 14,
+    "file": "v14_v14_smoothed_signal.py",
+    "source_file": "v13_v13_book_overlap_80.py",
+    "label": "v14_smoothed_signal"
+  },
+  {
+    "version": 15,
+    "file": "v15_v15_min_hold_trigger.py",
+    "source_file": "v14_v14_smoothed_signal.py",
+    "label": "v15_min_hold_trigger"
+  },
+  {
+    "version": 16,
+    "file": "v16_v16_smoothed_min_hold.py",
+    "source_file": "v15_v15_min_hold_trigger.py",
+    "label": "v16_smoothed_min_hold"
+  },
+  {
+    "version": 17,
+    "file": "v17_v17_top10_book.py",
+    "source_file": "v16_v16_smoothed_min_hold.py",
+    "label": "v17_top10_book"
+  },
+  {
+    "version": 18,
+    "file": "v18_v18_pct15_filter.py",
+    "source_file": "v17_v17_top10_book.py",
+    "label": "v18_pct15_filter"
+  },
+  {
+    "version": 19,
+    "file": "v19_v19_pct15_top10.py",
+    "source_file": "v18_v18_pct15_filter.py",
+    "label": "v19_pct15_top10"
+  }
+]

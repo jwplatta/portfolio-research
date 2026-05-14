@@ -1,0 +1,4 @@
+from common import build_volume_shock_iteration_v9
+
+STUDY_NAME = "sp500_event_driven_v14_volume_shock_stronger_neutralization"
+study = build_volume_shock_iteration_v9(STUDY_NAME)

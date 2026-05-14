@@ -1,0 +1,206 @@
+[
+  {
+    "version": 0,
+    "file": "v0.py",
+    "source_file": null,
+    "label": null
+  },
+  {
+    "version": 1,
+    "file": "v1_stability_signal.py",
+    "source_file": "v0.py",
+    "label": "stability_signal"
+  },
+  {
+    "version": 2,
+    "file": "v2_vol_adjusted_signal.py",
+    "source_file": "v1_stability_signal.py",
+    "label": "vol_adjusted_signal"
+  },
+  {
+    "version": 3,
+    "file": "v3_signal_abs_quantile.py",
+    "source_file": "v2_vol_adjusted_signal.py",
+    "label": "signal_abs_quantile"
+  },
+  {
+    "version": 4,
+    "file": "v4_relative_volume_filter.py",
+    "source_file": "v3_signal_abs_quantile.py",
+    "label": "relative_volume_filter"
+  },
+  {
+    "version": 5,
+    "file": "v5_residual_regime.py",
+    "source_file": "v4_relative_volume_filter.py",
+    "label": "residual_regime"
+  },
+  {
+    "version": 6,
+    "file": "v6_residual_corr_regime.py",
+    "source_file": "v5_residual_regime.py",
+    "label": "residual_corr_regime"
+  },
+  {
+    "version": 7,
+    "file": "v7_sector_relative.py",
+    "source_file": "v6_residual_corr_regime.py",
+    "label": "sector_relative"
+  },
+  {
+    "version": 8,
+    "file": "v8_liquidity_top_100.py",
+    "source_file": "v7_sector_relative.py",
+    "label": "liquidity_top_100"
+  },
+  {
+    "version": 9,
+    "file": "v9_rebalance_15.py",
+    "source_file": "v8_liquidity_top_100.py",
+    "label": "rebalance_15"
+  },
+  {
+    "version": 10,
+    "file": "v10_book_15.py",
+    "source_file": "v9_rebalance_15.py",
+    "label": "book_15"
+  },
+  {
+    "version": 11,
+    "file": "v11_signal_abs_quantile_70_from_v9.py",
+    "source_file": "v10_book_15.py",
+    "label": "signal_abs_quantile_70_from_v9"
+  },
+  {
+    "version": 12,
+    "file": "v12_signal_abs_quantile_80_from_v9.py",
+    "source_file": "v11_signal_abs_quantile_70_from_v9.py",
+    "label": "signal_abs_quantile_80_from_v9"
+  },
+  {
+    "version": 13,
+    "file": "v13_rebalance_20_from_v9.py",
+    "source_file": "v12_signal_abs_quantile_80_from_v9.py",
+    "label": "rebalance_20_from_v9"
+  },
+  {
+    "version": 14,
+    "file": "v14_liquidity_top_125_from_v9.py",
+    "source_file": "v13_rebalance_20_from_v9.py",
+    "label": "liquidity_top_125_from_v9"
+  },
+  {
+    "version": 15,
+    "file": "v15_book_25_from_v9.py",
+    "source_file": "v14_liquidity_top_125_from_v9.py",
+    "label": "book_25_from_v9"
+  },
+  {
+    "version": 16,
+    "file": "v16_signal_abs_quantile_75_from_v11.py",
+    "source_file": "v15_book_25_from_v9.py",
+    "label": "signal_abs_quantile_75_from_v11"
+  },
+  {
+    "version": 17,
+    "file": "v17_rebalance_12_from_v11.py",
+    "source_file": "v16_signal_abs_quantile_75_from_v11.py",
+    "label": "rebalance_12_from_v11"
+  },
+  {
+    "version": 18,
+    "file": "v18_book_25_from_v11.py",
+    "source_file": "v17_rebalance_12_from_v11.py",
+    "label": "book_25_from_v11"
+  },
+  {
+    "version": 19,
+    "file": "v19_liquidity_top_175_from_v11.py",
+    "source_file": "v18_book_25_from_v11.py",
+    "label": "liquidity_top_175_from_v11"
+  },
+  {
+    "version": 20,
+    "file": "v20_signal_lookback_45_from_v11.py",
+    "source_file": "v19_liquidity_top_175_from_v11.py",
+    "label": "signal_lookback_45_from_v11"
+  },
+  {
+    "version": 21,
+    "file": "v21_signal_60_20_from_v16.py",
+    "source_file": "v20_signal_lookback_45_from_v11.py",
+    "label": "signal_60_20_from_v16"
+  },
+  {
+    "version": 22,
+    "file": "v22_signal_60_10_from_v16.py",
+    "source_file": "v21_signal_60_20_from_v16.py",
+    "label": "signal_60_10_from_v16"
+  },
+  {
+    "version": 23,
+    "file": "v23_signal_90_20_from_v16.py",
+    "source_file": "v22_signal_60_10_from_v16.py",
+    "label": "signal_90_20_from_v16"
+  },
+  {
+    "version": 24,
+    "file": "v24_equal_sharpe_weight_from_v16.py",
+    "source_file": "v23_signal_90_20_from_v16.py",
+    "label": "equal_sharpe_weight_from_v16"
+  },
+  {
+    "version": 25,
+    "file": "v25_sector_relative_sector_model_from_v16.py",
+    "source_file": "v24_equal_sharpe_weight_from_v16.py",
+    "label": "sector_relative_sector_model_from_v16"
+  },
+  {
+    "version": 26,
+    "file": "v26_breadth_regime_from_v16.py",
+    "source_file": "v25_sector_relative_sector_model_from_v16.py",
+    "label": "breadth_regime_from_v16"
+  },
+  {
+    "version": 27,
+    "file": "v27_book_10_from_v16.py",
+    "source_file": "v26_breadth_regime_from_v16.py",
+    "label": "book_10_from_v16"
+  },
+  {
+    "version": 28,
+    "file": "v28_signal_abs_quantile_80_from_v0.py",
+    "source_file": "v27_book_10_from_v16.py",
+    "label": "signal_abs_quantile_80_from_v0"
+  },
+  {
+    "version": 29,
+    "file": "v29_signal_abs_quantile_85_from_v0.py",
+    "source_file": "v28_signal_abs_quantile_80_from_v0.py",
+    "label": "signal_abs_quantile_85_from_v0"
+  },
+  {
+    "version": 30,
+    "file": "v30_equal_vol_weight_from_v0.py",
+    "source_file": "v29_signal_abs_quantile_85_from_v0.py",
+    "label": "equal_vol_weight_from_v0"
+  },
+  {
+    "version": 31,
+    "file": "v31_equal_sharpe_weight_from_v0.py",
+    "source_file": "v30_equal_vol_weight_from_v0.py",
+    "label": "equal_sharpe_weight_from_v0"
+  },
+  {
+    "version": 32,
+    "file": "v32_sector_relative_sector_model_from_v0.py",
+    "source_file": "v31_equal_sharpe_weight_from_v0.py",
+    "label": "sector_relative_sector_model_from_v0"
+  },
+  {
+    "version": 33,
+    "file": "v33_book_10_from_v0.py",
+    "source_file": "v32_sector_relative_sector_model_from_v0.py",
+    "label": "book_10_from_v0"
+  }
+]

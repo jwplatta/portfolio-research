@@ -1,0 +1,91 @@
+# Sp500 Industry Relative Med Horizon Momentum Costs Log
+
+- Created with `qstudy create sp500-industry-relative-med-horizon-momentum-costs`.
+- Goal: test a cost-aware, medium-horizon industry-relative momentum study for the `SP500` under `10` bps transaction costs.
+- Baseline `v0` design:
+  - signal: medium-horizon relative momentum using `60d - 20d` log-return momentum, shifted `1` day
+  - ranking: demean the signal within industry before the global long/short cut
+  - weighting: `equal_vol` with a `63`-day vol window for vol-neutral sizing
+  - diversification: `30` longs and `30` shorts
+  - turnover control: rebalance every `15` trading days, keep only names above the `35th` percentile of relative volume, and focus on the top `45%` of absolute signals
+  - tradeability: min price `$5`, min ADV `$20M`, top-`200` liquidity screen
+  - neutralization: market-neutral positions
+  - benchmark/date range: `SPY`, `2015-01-01` to `2023-12-31`
+- Baseline `v0` result:
+  - net Sharpe `0.5814`
+  - gross Sharpe `0.7060`
+  - annual return `9.46%`
+  - gross annual return `12.01%`
+  - annual vol `18.52%`
+  - max drawdown `-36.62%`
+  - avg daily turnover `0.0912`
+  - cost drag `2.30%`
+  - benchmark correlation `0.9440`
+- Initial takeaway:
+  - turnover is already in the same controlled range as the stronger residual-momentum study
+  - gross edge is decent enough to iterate on, but this baseline is still behaving too much like the market despite the industry-relative ranking and market-neutralization step
+  - the first improvement path should likely focus on better neutralization and stronger cross-sectional ranking rather than pushing turnover lower
+- Book-size test with existing market neutralization retained via `neutralize_positions({"market": 0})`:
+  - `v1_book_10_from_v0`: tighten the book to `10/10`. Net Sharpe `0.6028`, gross Sharpe `0.7240`, annual return `10.98%`, max drawdown `-35.70%`, avg daily turnover `0.1002`, benchmark correlation `0.8837`.
+  - `v2_book_20_from_v0`: tighten the book to `20/20`. Net Sharpe `0.5487`, gross Sharpe `0.6739`, annual return `8.95%`, max drawdown `-34.73%`, avg daily turnover `0.0935`, benchmark correlation `0.9310`.
+- Takeaway after the first book-size test:
+  - `10/10` improved Sharpe over the `30/30` baseline despite slightly higher turnover and volatility
+  - `20/20` underperformed both `30/30` and `10/10`
+  - concentration appears to help signal strength here, so the next branch point should be `v1_book_10_from_v0`
+- Second round from `v1_book_10_from_v0`:
+  - `v3_sector_neutral_from_v1`: add a real factor model with `["market", "sector"]` and enforce `neutralize_positions({"market": 0, "sector": 0})`. Net Sharpe `-0.4093`, gross Sharpe `-0.2169`, annual return `-6.40%`, max drawdown `-49.34%`, avg daily turnover `0.1056`, benchmark correlation `0.2142`.
+  - `v4_proportional_weight_from_v1`: replace the `10/10` equal-vol book with proportional signal-sized positions. Net Sharpe `-0.6210`, gross Sharpe `-0.3158`, annual return `-4.71%`, max drawdown `-37.67%`, avg daily turnover `0.0891`, benchmark correlation `-0.0828`.
+- Takeaway after the second round:
+  - the earlier `neutralize_positions({"market": 0})` call in `v0`/`v1` was not doing anything because those versions had no factor model attached
+  - once market and sector neutralization were made real in `v3`, the strategy lost most of its edge even though benchmark correlation dropped sharply
+  - proportional signal sizing was even worse than real neutralization, which suggests the current signal distribution is not robust enough to support continuous weighting
+  - `v1_book_10_from_v0` remains the best branch so far
+- Third round from `v1_book_10_from_v0`:
+  - `v5_industry_balanced_from_v1`: construct equal long/short exposure inside each industry before portfolio scaling. Net Sharpe `-0.8426`, gross Sharpe `-0.3850`, annual return `-4.88%`, max drawdown `-36.34%`, avg daily turnover `0.1049`, benchmark correlation `-0.0588`.
+  - `v6_raw_sector_relative_from_v1`: switch from industry-relative ranking to raw sector-relative ranking while keeping the simple discrete `10/10` equal-vol book. Net Sharpe `0.7333`, gross Sharpe `0.8488`, annual return `14.54%`, max drawdown `-34.54%`, avg daily turnover `0.0992`, benchmark correlation `0.8346`.
+- Takeaway after the third round:
+  - strict equal-exposure construction inside industries destroyed the signal, so forcing balanced long/short books at the industry level is too restrictive for this setup
+  - raw sector-relative ranking worked materially better than industry-relative ranking with the same simple discrete book and similar turnover
+  - `v6_raw_sector_relative_from_v1` is now the best branch in the experiment and the correct new baseline
+- Fourth round from `v6_raw_sector_relative_from_v1`:
+  - `v7_hybrid_sector_relative_from_v6`: blend sector-relative and industry-relative ranking in the transform layer. Net Sharpe `0.6772`, gross Sharpe `0.7979`, annual return `12.72%`, max drawdown `-33.28%`, avg daily turnover `0.1000`, benchmark correlation `0.8523`.
+  - `v8_softer_beta_control_from_v6`: add a real market factor model and keep beta within a soft `[-0.2, 0.2]` band instead of hard zeroing. Net Sharpe `-0.0341`, gross Sharpe `0.1531`, annual return `-1.45%`, max drawdown `-26.94%`, avg daily turnover `0.1039`, benchmark correlation `0.2616`.
+  - `v9_signal_blend_from_v6`: use a `0.5` raw momentum and `0.5` sector-relative momentum signal blend. Net Sharpe `0.6969`, gross Sharpe `0.8119`, annual return `14.04%`, max drawdown `-35.38%`, avg daily turnover `0.1024`, benchmark correlation `0.8154`.
+  - `v10_regime_gate_from_v6`: add a simple benchmark trend gate using a `100/200` moving-average filter. Net Sharpe `0.5805`, gross Sharpe `0.6744`, annual return `9.58%`, max drawdown `-34.54%`, avg daily turnover `0.0699`, benchmark correlation `0.7112`.
+- Takeaway after the fourth round:
+  - none of the `v6` branches beat the raw sector-relative baseline
+  - hybrid ranking and 50/50 signal blending both preserved much of the edge, but each still trailed `v6`
+  - even a soft beta constraint stripped out too much of the signal edge; reducing market correlation this way remains expensive
+  - the regime gate did what it should mechanically by cutting turnover and correlation, but it also gave up too much return and Sharpe
+  - `v6_raw_sector_relative_from_v1` remains the best branch and should stay the baseline
+- Fifth round from `v6_raw_sector_relative_from_v1`, focused on lowering benchmark correlation without giving up Sharpe:
+  - `v11_sector_balanced_from_v6`: force equal long/short exposure inside sectors before portfolio scaling. Net Sharpe `-0.1963`, gross Sharpe `0.0704`, annual return `-2.39%`, max drawdown `-24.41%`, avg daily turnover `0.1041`, benchmark correlation `-0.1121`.
+  - `v12_signal_abs_quantile_60_from_v6`: tighten the signal filter to `0.60`. Result was identical to `v6`, so the effective selected book did not change in this setup.
+  - `v13_signal_abs_quantile_65_from_v6`: tighten the signal filter to `0.65`. Result was also identical to `v6`.
+  - `v14_signal_blend_75_25_from_v6`: use a lighter blend of `0.75` raw momentum and `0.25` sector-relative momentum. Net Sharpe `0.7479`, gross Sharpe `0.8610`, annual return `15.75%`, max drawdown `-32.77%`, avg daily turnover `0.1035`, benchmark correlation `0.8082`.
+- Takeaway after the fifth round:
+  - sector-balanced construction reduced correlation dramatically but destroyed the signal, so hard sector balancing is still too restrictive here
+  - tightening the absolute-signal filter above the current level did nothing for the realized `10/10` book
+  - the best tradeoff so far is the lighter `75/25` raw-plus-sector blend, which both improved net Sharpe and lowered benchmark correlation versus `v6`
+  - `v14_signal_blend_75_25_from_v6` is now the best branch in the experiment and the correct new baseline
+- Sixth round from `v14_signal_blend_75_25_from_v6`, focused on pushing benchmark correlation lower:
+  - `v15_signal_blend_70_30_from_v14`: move to a `0.70 / 0.30` raw-plus-sector blend. Net Sharpe `0.6387`, gross Sharpe `0.7511`, annual return `12.86%`, max drawdown `-33.13%`, avg daily turnover `0.1031`, benchmark correlation `0.8140`.
+  - `v16_signal_blend_65_35_from_v14`: move to a `0.65 / 0.35` raw-plus-sector blend. Net Sharpe `0.6588`, gross Sharpe `0.7730`, annual return `13.28%`, max drawdown `-33.13%`, avg daily turnover `0.1036`, benchmark correlation `0.8122`.
+  - `v17_rebalance_20_from_v14`: slow rebalance to `20` trading days. Net Sharpe `0.5707`, gross Sharpe `0.6642`, annual return `10.83%`, max drawdown `-31.52%`, avg daily turnover `0.0833`, benchmark correlation `0.8101`.
+  - `v18_benchmark_trend_scale_from_v14`: add a mild benchmark trend scaler with defensive scale `0.75`. Net Sharpe `0.7444`, gross Sharpe `0.8557`, annual return `14.85%`, max drawdown `-32.77%`, avg daily turnover `0.0959`, benchmark correlation `0.8016`.
+- Takeaway after the sixth round:
+  - none of the new `v14` branches beat the current best on both Sharpe and correlation at the same time
+  - the mild benchmark trend scaler in `v18` was the closest useful tradeoff: it reduced benchmark correlation from `0.8082` to `0.8016` with only a very small Sharpe giveback from `0.7479` to `0.7444`
+  - pushing the blend further toward sector-relative or slowing rebalance reduced Sharpe too much for the modest correlation benefit
+  - `v14_signal_blend_75_25_from_v6` remains the best baseline, while `v18_benchmark_trend_scale_from_v14` is the best lower-correlation alternative
+- Seventh round from `v18_benchmark_trend_scale_from_v14`, adding real market neutralization after weighting and risk scaling:
+  - implementation note: `shared.py` now supports `neutralize_after_risk_scalers=True`, so `neutralize_positions({"market": 0})` can be applied after weighting and the benchmark trend scaler rather than before them
+  - `v20_market_neutral_after_scaling_from_v18`: keep the `0.75 / 0.25` raw-plus-sector blend from `v14`, add `factor_model_factors=["market"]`, apply the mild benchmark trend scaler, then neutralize to `{"market": 0}` after scaling. Net Sharpe `0.3219`, gross Sharpe `0.5173`, annual return `3.58%`, max drawdown `-26.48%`, avg daily turnover `0.1081`, benchmark correlation `0.1882`.
+  - `v21_signal_blend_70_30_mkt_neutral_after_scaling_from_v18`: increase the sector-relative blend to `0.70 / 0.30` while keeping post-scaling market neutralization. Net Sharpe `0.1627`, gross Sharpe `0.3555`, annual return `1.31%`, max drawdown `-34.63%`, avg daily turnover `0.1075`, benchmark correlation `0.1792`.
+  - `v22_signal_blend_65_35_mkt_neutral_after_scaling_from_v18`: increase the sector-relative blend to `0.65 / 0.35` while keeping post-scaling market neutralization. Net Sharpe `0.1520`, gross Sharpe `0.3472`, annual return `1.15%`, max drawdown `-35.19%`, avg daily turnover `0.1081`, benchmark correlation `0.1795`.
+- Takeaway after the seventh round:
+  - applying real market neutralization after weighting and scaling did exactly what it should mechanically: benchmark correlation fell sharply from `0.8016` in `v18` to roughly `0.18` in `v20` through `v22`
+  - it was still too expensive in this signal family, cutting net Sharpe from `0.7444` in `v18` to `0.3219` in the best post-scaling-neutralized variant
+  - increasing the sector-relative weight after adding true market neutralization made the outcome worse, not better
+  - the main conclusion holds: this strategy's edge still overlaps materially with market exposure, so explicit factor neutralization is not the right next optimization path if net Sharpe must be preserved
+  - `v14_signal_blend_75_25_from_v6` remains the best overall branch, and `v18_benchmark_trend_scale_from_v14` remains the best lower-correlation tradeoff that does not meaningfully damage Sharpe
