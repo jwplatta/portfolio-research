@@ -1,4 +1,0 @@
-from common import build_volume_shock_iteration_v5
-
-STUDY_NAME = "sp500_event_driven_v10_volume_shock_residual_low_vol"
-study = build_volume_shock_iteration_v5(STUDY_NAME)
