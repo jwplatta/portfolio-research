@@ -2752,6 +2752,7 @@ dependencies = [
     { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "pandas", version = "3.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "python-dotenv" },
+    { name = "qstudy" },
     { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "seaborn" },
@@ -2760,7 +2761,6 @@ dependencies = [
     { name = "streamlit" },
     { name = "ta" },
     { name = "tqdm" },
-    { name = "trade-lab" },
     { name = "yfinance" },
 ]
 
@@ -2783,6 +2783,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "qstudy", editable = "../qstudy" },
     { name = "scikit-learn" },
     { name = "seaborn" },
     { name = "simfin", specifier = ">=1.0.1" },
@@ -2790,7 +2791,6 @@ requires-dist = [
     { name = "streamlit", specifier = ">=1.50.0" },
     { name = "ta", specifier = ">=0.11.0" },
     { name = "tqdm", specifier = ">=4.67.3" },
-    { name = "trade-lab", editable = "../qstudy" },
     { name = "yfinance" },
 ]
 
@@ -3357,6 +3357,63 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/49/0e/3f0d0d335c6b3abb9b7b723776d0b21fa7f3a6c819a0db6097059aada160/pyzmq-27.1.0-pp311-pypy311_pp73-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:53b40f8ae006f2734ee7608d59ed661419f087521edbfc2149c3932e9c14808c", size = 567747, upload-time = "2025-09-08T23:09:52.698Z" },
     { url = "https://files.pythonhosted.org/packages/a1/cf/f2b3784d536250ffd4be70e049f3b60981235d70c6e8ce7e3ef21e1adb25/pyzmq-27.1.0-pp311-pypy311_pp73-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:f605d884e7c8be8fe1aa94e0a783bf3f591b84c24e4bc4f3e7564c82ac25e271", size = 747371, upload-time = "2025-09-08T23:09:54.563Z" },
     { url = "https://files.pythonhosted.org/packages/01/1b/5dbe84eefc86f48473947e2f41711aded97eecef1231f4558f1f02713c12/pyzmq-27.1.0-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:c9f7f6e13dff2e44a6afeaf2cf54cee5929ad64afaf4d40b50f93c58fc687355", size = 544862, upload-time = "2025-09-08T23:09:56.509Z" },
+]
+
+[[package]]
+name = "qstudy"
+version = "0.1.0"
+source = { editable = "../qstudy" }
+dependencies = [
+    { name = "backtrader" },
+    { name = "fredapi" },
+    { name = "ipykernel" },
+    { name = "jupyter" },
+    { name = "lean" },
+    { name = "matplotlib" },
+    { name = "mplfinance" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "pandas", version = "3.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "python-dotenv" },
+    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "seaborn" },
+    { name = "simfin" },
+    { name = "statsmodels" },
+    { name = "streamlit" },
+    { name = "ta" },
+    { name = "tqdm" },
+    { name = "yfinance" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "backtrader", specifier = ">=1.9.78.123" },
+    { name = "fredapi" },
+    { name = "ipykernel", specifier = ">=7.1.0" },
+    { name = "jupyter", specifier = ">=1.1.1" },
+    { name = "lean" },
+    { name = "matplotlib", specifier = ">=3.10.8" },
+    { name = "mplfinance", specifier = ">=0.12.10b0" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "pandas", specifier = ">=2.3.3" },
+    { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "scikit-learn" },
+    { name = "seaborn" },
+    { name = "simfin", specifier = ">=1.0.1" },
+    { name = "statsmodels" },
+    { name = "streamlit", specifier = ">=1.50.0" },
+    { name = "ta", specifier = ">=0.11.0" },
+    { name = "tqdm", specifier = ">=4.67.3" },
+    { name = "yfinance" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.19.1" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "ruff", specifier = ">=0.14.9" },
 ]
 
 [[package]]
@@ -4179,63 +4236,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/09/a9/6ba95a270c6f1fbcd8dac228323f2777d886cb206987444e4bce66338dd4/tqdm-4.67.3.tar.gz", hash = "sha256:7d825f03f89244ef73f1d4ce193cb1774a8179fd96f31d7e1dcde62092b960bb", size = 169598, upload-time = "2026-02-03T17:35:53.048Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/16/e1/3079a9ff9b8e11b846c6ac5c8b5bfb7ff225eee721825310c91b3b50304f/tqdm-4.67.3-py3-none-any.whl", hash = "sha256:ee1e4c0e59148062281c49d80b25b67771a127c85fc9676d3be5f243206826bf", size = 78374, upload-time = "2026-02-03T17:35:50.982Z" },
-]
-
-[[package]]
-name = "trade-lab"
-version = "0.1.0"
-source = { editable = "../qstudy" }
-dependencies = [
-    { name = "backtrader" },
-    { name = "fredapi" },
-    { name = "ipykernel" },
-    { name = "jupyter" },
-    { name = "lean" },
-    { name = "matplotlib" },
-    { name = "mplfinance" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "pandas", version = "3.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "python-dotenv" },
-    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "seaborn" },
-    { name = "simfin" },
-    { name = "statsmodels" },
-    { name = "streamlit" },
-    { name = "ta" },
-    { name = "tqdm" },
-    { name = "yfinance" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "backtrader", specifier = ">=1.9.78.123" },
-    { name = "fredapi" },
-    { name = "ipykernel", specifier = ">=7.1.0" },
-    { name = "jupyter", specifier = ">=1.1.1" },
-    { name = "lean" },
-    { name = "matplotlib", specifier = ">=3.10.8" },
-    { name = "mplfinance", specifier = ">=0.12.10b0" },
-    { name = "numpy", specifier = ">=2.2.6" },
-    { name = "pandas", specifier = ">=2.3.3" },
-    { name = "python-dotenv", specifier = ">=1.0.1" },
-    { name = "scikit-learn" },
-    { name = "seaborn" },
-    { name = "simfin", specifier = ">=1.0.1" },
-    { name = "statsmodels" },
-    { name = "streamlit", specifier = ">=1.50.0" },
-    { name = "ta", specifier = ">=0.11.0" },
-    { name = "tqdm", specifier = ">=4.67.3" },
-    { name = "yfinance" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "mypy", specifier = ">=1.19.1" },
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "ruff", specifier = ">=0.14.9" },
 ]
 
 [[package]]
