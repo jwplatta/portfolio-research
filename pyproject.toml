@@ -22,8 +22,8 @@ dependencies = [
     "seaborn",
     "statsmodels",
     "fredapi",
-    "trade-lab",
-    "tqdm>=4.67.3",
+    "qstudy",
+    "tqdm>=4.67.3"
 ]
 
 [dependency-groups]
@@ -34,7 +34,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-trade-lab = { path = "../qstudy", editable = true }
+qstudy = { path = "../qstudy", editable = true }
 
 [tool.ruff]
 line-length = 100
