@@ -1,0 +1,265 @@
+% =============================================================================
+% LaTeX Tables and Math Blocks for Multi-Sleeve Statistical Arbitrage Report
+% =============================================================================
+% Copy these into your Overleaf document as needed.
+% Requires: booktabs, amsmath, graphicx packages
+
+% =============================================================================
+% SECTION 3: SIGNAL FORMULAS
+% =============================================================================
+
+% --- Monotonic Momentum ---
+
+\begin{equation}
+h^{(w)}_{i,t} = \frac{1}{w} \sum_{k=0}^{w-1} \mathbf{1}\left(\operatorname{sign}(r_{i,t-k}) = \operatorname{sign}(\mu^{(w)}_{i,t-k})\right)
+\end{equation}
+
+\begin{equation}
+s^{\mathrm{mon}}_{i,t} = h^{(w)}_{i,t} \cdot \left|\mu^{(w)}_{i,t}\right|
+\end{equation}
+
+% --- Active-Return Mean Reversion ---
+
+\begin{equation}
+s^{\mathrm{mr}}_{i,t} = -\bar{r}^{(w)}_{i,t}
+\end{equation}
+
+% --- Z-Score Reversal ---
+
+\begin{equation}
+s^{\mathrm{zrev}}_{i,t} = -\frac{\bar{r}^{(f)}_{i,t} - \mu^{(s)}_{i,t}}{\sigma^{(s)}_{i,t}}
+\end{equation}
+
+% --- Residual Mean Reversion ---
+
+\begin{equation}
+s^{\mathrm{res}}_{i,t} = -\bar{\tilde{r}}^{(w)}_{i,t}
+\end{equation}
+
+% --- Distance Pairs Mean Reversion ---
+
+\begin{equation}
+z_{i,t} = \frac{d_{i,t} - \bar{d}^{(w)}_{i,t}}{\sigma^{(w)}(d_{i,t})} \qquad s^{\text{pairs}}_{i,t} = -\operatorname{clip}(z_{i,t},\, -2,\, 2)
+\end{equation}
+
+% --- Sector-Relative Mean Reversion ---
+
+\begin{equation}
+s^{\text{sector}}_{i,t} = -\overline{(r_{i,t} - r^{\text{sector}}_{g(i),t})}^{(w)}
+\end{equation}
+
+% --- Gap Reversion ---
+
+\begin{equation}
+s^{\text{gap}}_{i,t} = -\tilde{r}_{i,t-1}
+\end{equation}
+
+
+% =============================================================================
+% SECTION 3: TABLE 1 — Signal Conditioning Progression
+% =============================================================================
+
+\begin{table}[htbp]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llrrr}
+        \toprule
+        Family & Variant & Net Sharpe & Turnover & Max DD \\
+        \midrule
+        \textbf{Monotonic Momentum} & & & & \\
+        & Base (120d, rebal 21d) & 0.606 & 5.100\% & $-$14.700\% \\
+        & + low-dispersion scaling (60d, q30) & 0.769 & 3.983\% & $-$10.146\% \\
+        & + best conditioning (none improved) & 0.769 & 3.983\% & $-$10.146\% \\
+        \midrule
+        \textbf{Active-Return MR} & & & & \\
+        & Base (5d reversal, rebal 10d) & 0.557 & 11.700\% & $-$12.900\% \\
+        & + uptrend scaling (20/100d) & 0.708 & 5.200\% & $-$6.700\% \\
+        & + high residual dispersion gate (20d, q75) & 1.279 & 1.733\% & $-$3.173\% \\
+        \midrule
+        \textbf{Residual MR} & & & & \\
+        & Base (ETF-factor 5d, rebal 10d) & 0.694 & 11.900\% & $-$7.900\% \\
+        & + uptrend scaling (20/100d) & 0.918 & 5.100\% & $-$4.400\% \\
+        & + high residual dispersion gate (20d, q75) & 1.083 & 1.542\% & $-$4.538\% \\
+        \midrule
+        \textbf{Distance-Pairs MR} & & & & \\
+        & Best base ($k$=3, 60d z-score, rebal 10d) & 1.078 & 12.911\% & $-$9.709\% \\
+        & + best conditioning (none improved) & 1.078 & 12.911\% & $-$9.709\% \\
+        \midrule
+        \textbf{Sector-Relative} & & & & \\
+        & Base (sector-relative z-score 5/60, rebal 10d) & 0.248 & 11.900\% & $-$15.200\% \\
+        & + uptrend scaling (20/100d) & 0.584 & 5.100\% & $-$5.000\% \\
+        & + high residual dispersion gate (20d, q75) & 0.886 & 2.021\% & $-$5.926\% \\
+        \midrule
+        \textbf{Event / Gap Reversion} & & & & \\
+        & Base (residual gap reversal, rebal 10d) & 0.626 & 11.100\% & $-$10.500\% \\
+        & + uptrend scaling (50/200d) + vol contraction gate & 0.825 & 3.599\% & $-$4.383\% \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{Signal conditioning progression from base (no scaling, no conditioning) through best risk-scaled variant to best conditioned variant for each family.}
+    \label{tab:conditioning-progression}
+\end{table}
+
+
+% =============================================================================
+% SECTION 3: TABLE 2 — Best Conditioned Signal per Family
+% =============================================================================
+
+\begin{table}[htbp]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llllrrrrr}
+        \toprule
+        Family & Signal & Scaling & Cond.\ Gate & Net SR & Gross SR & Turnover & Max DD & $\rho_{\text{bench}}$ \\
+        \midrule
+        Monotonic Mom. & 120d, rebal 21d & Low-disp. & None & 0.769 & 0.910 & 3.983\% & $-$10.146\% & 0.253 \\
+        Active-Ret.\ MR & Z-score 5d/60d, rebal 10d & Uptrend 20/100d & High resid.\ disp. & 1.279 & 1.426 & 1.733\% & $-$3.173\% & 0.143 \\
+        Residual MR & Factor-model 5d, rebal 10d & Uptrend 20/100d & High resid.\ disp. & 1.083 & 1.192 & 1.542\% & $-$4.538\% & 0.092 \\
+        Dist.-Pairs MR & $k$=3, 60d z-score, rebal 10d & None & None & 1.078 & 1.549 & 12.911\% & $-$9.709\% & $-$0.179 \\
+        Sector-Rel.\ MR & Sector-rel.\ 5d, rebal 10d & Uptrend 20/100d & High resid.\ disp. & 0.886 & 1.014 & 2.021\% & $-$5.926\% & 0.019 \\
+        Event / Gap Rev. & Resid.\ gap rev., rebal 10d & Uptrend 50/200d & Vol contraction & 0.825 & 1.093 & 3.599\% & $-$4.383\% & 0.043 \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \captionsetup{font=small}
+    \caption{Best conditioned signal variant per family.}
+    \label{tab:best-conditioned-signals}
+\end{table}
+
+
+% =============================================================================
+% SECTION 4: TABLE 3 — Incremental Portfolio Buildout
+% =============================================================================
+
+\begin{table}[htbp]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{clcrrrr}
+        \toprule
+        Step & Sleeve Added & Sleeves & Net Sharpe & Gross Sharpe & Turnover & Max DD \\
+        \midrule
+        1 & Residual MR (high resid.\ disp.\ gate) & 1 & 1.074 & 1.181 & 1.542\% & $-$4.526\% \\
+        2 & + Active-Return MR (breadth gate) & 2 & 1.242 & 1.339 & 1.655\% & $-$6.020\% \\
+        3 & + DPMR (z20, vol contraction gate) & 3 & 1.556 & 1.746 & 2.447\% & $-$3.753\% \\
+        4 & + DPMR (z60, vol expansion gate) & 4 & 1.720 & 2.031 & 3.799\% & $-$3.105\% \\
+        5 & + DPMR (z60, always-on) & 5 & 1.786 & 2.219 & 5.536\% & $-$3.254\% \\
+        6 & + DPMR (z10, panic gate) & 6 & 1.883 & 2.297 & 4.699\% & $-$2.811\% \\
+        7 & + Monotonic Momentum (crash-gated) & 7 & 1.989 & 2.417 & 4.619\% & $-$3.196\% \\
+        8 & + Residual Gap Reversion (breadth-gated) & 8 & 2.039 & 2.548 & 5.020\% & $-$2.347\% \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \captionsetup{font=small}
+    \caption{Incremental portfolio buildout. Each row adds one sleeve to the portfolio and reports the resulting aggregate statistics.}
+    \label{tab:portfolio-buildout}
+\end{table}
+
+
+% =============================================================================
+% SECTION 4: TABLE 4 — DPMR Sleeve Parametrization
+% =============================================================================
+
+\begin{table}[htbp]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lrcll}
+        \toprule
+        Sleeve & Z Window & Rebalance & Conditioning & Role \\
+        \midrule
+        DPMR z10 + panic & 10 & 10d & Panic regime ($-$5\% in 10d) & Fast crisis-reversion; episodic \\
+        DPMR z20 + vol contraction & 20 & 21d & Vol contraction (10d vol $<$ 60d vol) & Slow calmer-market convergence \\
+        DPMR z60 + vol expansion & 60 & 5d & Vol expansion (10d vol $>$ 60d vol) & Persistent dislocation in turbulence \\
+        DPMR z60 + none & 60 & 10d & Always on & Baseline structural convergence \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{Distance-pairs sleeve parametrization. All sleeves share the same base construction ($k=3$ nearest partners, z-scored spread reversal clipped to $[-2, 2]$).}
+    \label{tab:dpmr-sleeves}
+\end{table}
+
+
+% =============================================================================
+% SECTION 4: TABLE 5 — Final Portfolio Attribution
+% =============================================================================
+
+\begin{table}[htbp]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lrrrrrr}
+        \toprule
+        Sleeve & Weight & Net Sharpe & Ret.\ Contrib. & Var.\ Contrib. & Efficiency & Turn.\ Contrib. \\
+        \midrule
+        DPMR z60, always-on & 8.9\% & 1.549 & 16.1\% & 13.5\% & 1.189 & 23.0\% \\
+        DPMR z60, vol expansion & 10.7\% & 1.394 & 14.4\% & 14.1\% & 1.025 & 17.0\% \\
+        DPMR z20, vol contraction & 16.2\% & 1.336 & 13.8\% & 7.3\% & 1.900 & 13.0\% \\
+        Residual MR (high resid.\ disp.) & 15.8\% & 1.192 & 12.3\% & 16.4\% & 0.751 & 4.9\% \\
+        Resid.\ Gap Rev.\ (breadth) & 14.7\% & 1.177 & 12.2\% & 10.0\% & 1.224 & 28.5\% \\
+        Active-Return MR (breadth) & 9.4\% & 1.098 & 11.4\% & 16.4\% & 0.693 & 3.3\% \\
+        DPMR z10, panic & 15.8\% & 1.016 & 10.5\% & 13.0\% & 0.812 & 2.0\% \\
+        Monotonic Momentum (crash) & 8.4\% & 0.888 & 9.2\% & 9.3\% & 0.986 & 8.3\% \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{Sleeve attribution for the final 8-sleeve equal-volatility portfolio.}
+    \label{tab:sleeve-attribution}
+\end{table}
+
+
+% =============================================================================
+% SECTION 6: TABLE 6 — Turnover and Capacity
+% =============================================================================
+
+\begin{table}[htbp]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lrll}
+        \toprule
+        Sleeve & Daily Turnover & Holding Horizon & Capacity Notes \\
+        \midrule
+        \textbf{Portfolio (aggregate)} & \textbf{4.700\%} & \textbf{Multi-day} & \textbf{Moderate aggregate feasibility} \\
+        DPMR z10 (panic) & 0.600\% & Episodic & Trades only in stressed windows; low continuous burden \\
+        Residual MR (resid.\ disp.) & 1.500\% & Medium & Low turnover; among the easiest sleeves to scale \\
+        Active-Return MR (breadth) & 1.800\% & Medium & Low turnover; stable core sleeve \\
+        DPMR z20 (vol contraction) & 4.000\% & Medium-long & Monthly-style rebalance; requires crossing discipline \\
+        Monotonic Momentum (crash) & 4.900\% & Medium-long & Longer holding periods; cleaner execution \\
+        DPMR z60 (vol expansion) & 8.000\% & Short-medium & Faster rebalance; meaningfully execution-dependent \\
+        Resid.\ Gap Rev.\ (breadth) & 9.700\% & Short & Event-driven reversion; trading quality matters \\
+        DPMR z60 (always-on) & 12.900\% & Medium & Highest-turnover sleeve; no conditioning filter \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{Turnover and capacity profile by sleeve.}
+    \label{tab:turnover-capacity}
+\end{table}
+
+
+% =============================================================================
+% SECTION 7: TABLE 7 — Annual Performance
+% =============================================================================
+
+\begin{table}[htbp]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{clrrrrrrrr}
+        \toprule
+        Year & Period & Return & Sharpe & Vol & Max DD & Lev.\ Ret. & Lev.\ SR & Lev.\ Max DD & SPY Ret. \\
+        \midrule
+        2015 & IS & 1.100\% & 1.041 & 1.100\% & $-$1.100\% & 5.400\% & 1.010 & $-$5.300\% & 1.300\% \\
+        2016 & IS & 3.800\% & 3.064 & 1.200\% & $-$0.400\% & 20.100\% & 3.064 & $-$2.100\% & 12.000\% \\
+        2017 & IS & 0.500\% & 0.481 & 1.100\% & $-$1.000\% & 2.600\% & 0.481 & $-$5.100\% & 21.800\% \\
+        2018 & IS & 3.200\% & 2.120 & 1.500\% & $-$0.900\% & 16.700\% & 2.116 & $-$4.200\% & $-$4.600\% \\
+        2019 & IS & 3.900\% & 2.324 & 1.700\% & $-$0.700\% & 19.000\% & 2.251 & $-$3.600\% & 31.200\% \\
+        2020 & IS & 18.300\% & 3.364 & 5.000\% & $-$2.400\% & 50.100\% & 3.235 & $-$6.300\% & 18.300\% \\
+        2021 & IS & 1.300\% & 0.718 & 1.900\% & $-$1.400\% & 4.200\% & 0.528 & $-$7.000\% & 28.700\% \\
+        2022 & IS & 9.000\% & 3.399 & 2.600\% & $-$0.600\% & 40.900\% & 3.388 & $-$2.600\% & $-$18.200\% \\
+        2023 & IS & 2.400\% & 1.474 & 1.600\% & $-$1.000\% & 12.000\% & 1.466 & $-$5.000\% & 26.400\% \\
+        \midrule
+        \textbf{2024} & \textbf{OOS} & $\mathbf{-1.900\%}$ & $\mathbf{-1.350}$ & \textbf{1.400\%} & $\mathbf{-2.400\%}$ & $\mathbf{-9.200\%}$ & $\mathbf{-1.350}$ & $\mathbf{-11.400\%}$ & \textbf{24.900\%} \\
+        \textbf{2025} & \textbf{OOS} & \textbf{4.900\%} & \textbf{1.273} & \textbf{3.800\%} & $\mathbf{-1.500\%}$ & \textbf{12.800\%} & \textbf{0.840} & $\mathbf{-6.700\%}$ & \textbf{17.900\%} \\
+        \textbf{2026} & \textbf{OOS} & \textbf{9.900\%} & \textbf{2.414} & \textbf{4.000\%} & $\mathbf{-1.500\%}$ & \textbf{31.500\%} & \textbf{2.136} & $\mathbf{-4.500\%}$ & \textbf{15.100\%} \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{Annual performance summary. IS = in-sample (2015--2023), OOS = out-of-sample (2024--2026). Lev.\ columns reflect 10\% target volatility scaling.}
+    \label{tab:annual-performance}
+\end{table}
