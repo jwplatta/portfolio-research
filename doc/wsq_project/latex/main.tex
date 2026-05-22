@@ -2,10 +2,12 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{caption}
 \usepackage[margin=1in]{geometry}
 \usepackage[section]{placeins}
 \usepackage{float}
+\usepackage{array}
 
 \captionsetup{font=small}
 
@@ -19,92 +21,116 @@
 
 \section{Introduction}
 
-This report documents the construction and evaluation of a diversified multi-sleeve statistical arbitrage portfolio in U.S. equities. The final portfolio combines six distinct signal families (momentum, active return mean reversion, residual return mean reversion, distance-pairs relative value, sector-relative mean reversion, and event-driven gap reversion) into a single dollar-neutral long-short portfolio. The research followed a multi-step process that begins with a broad search across multiple alpha families. Next, conditioning and risk scaling are used to improve regime robustness. Portfolio construction begins by paring uncorrelated signals into equal weighted portfolios. The final portfolio is constructed using stability verification through ablation tests and alternative weighting schemes.
+This paper explores the construction and evaluation of a diversified multi-sleeve statistical arbitrage portfolio of equities in the S\&P 500. My final portfolio combines six distinct signal families (momentum, active return mean reversion, residual return mean reversion, distance-pairs relative value, sector-relative mean reversion, and event-driven gap reversion) into a single dollar-neutral long-short portfolio.
 
-The final portfolio achieves an in-sample net Sharpe ratio greater than 2.0 after 10 basis points of assumed transaction costs during the 2015--2023 period. During the out-of-sample period (2024--2026), performance degrades, but remains profitable while preserving much of the portfolio's diversification structure. The results suggest that diversification across heterogeneous mean reversion and momentum sleeves might produce more stable portfolio level behavior than reliance on any single standalone signal. Several sleeves with moderate standalone performance contribute meaningfully through low cross correlation and complementary regime specialization.
+I search across multiple alpha signal families to build uncorrelated portfolio sleeves. I use conditioning, or regime gating, and risk scaling to improve signal robustness. The portfolio construction begins by pairing uncorrelated sleeves into equal weighted portfolios. The final portfolio is constructed by iteratively adding sleeves and verifying performance stability through ablation tests and alternative weighting schemes.
+
+The final portfolio achieves an in-sample net Sharpe ratio greater than 2.0 after 10 basis points of assumed transaction costs during the 2015-2023 period. During the out-of-sample period (2024-2026), performance degrades, but remains profitable while preserving much of the portfolio's diversification structure. The results suggest that diversification across the various mean reversion and momentum sleeves might produce more stable portfolio level behavior than reliance on any single standalone signal. Several sleeves with moderate standalone performance contribute meaningfully through low cross correlation and complementary regime specialization.
 
 \section{Methodology \& Experimental Setup}
 
-All data is sourced from yfinance daily close prices. The portfiol is built using S\&P 500 equities as the univsere. This universe is filtered to the 300 most liquid names at any given time, where liquidity is defined as 60-day rolling average dollar volume (price $\times$ daily shares traded) ranked cross-sectionally each day. The SPY ETF is used as a benchmark. The factor set used in the study uses SPY as the market factor and then relies on the following sector ETFs as factors: XLK, XLF, XLE, XLV, XLI, XLY, XLP, XLU, XLRE, XLB. The signals and portfolio is developed against an in-simple period 2015--2013 and the final portfolio is evaluated against the out-of-sample period January 2024 through April 2026.
+All data is sourced from yfinance daily close prices. The portfolio is built using S\&P 500 equities as the universe. This universe is filtered to the 300 most liquid names at any given time where liquidity is defined as the 60-day rolling average dollar volume (price $\times$ daily shares traded) ranked cross-sectionally each day. The SPY ETF is used as a benchmark. The factor set used in the study uses SPY as the market factor and then relies on the following sector ETFs as factors: XLK, XLF, XLE, XLV, XLI, XLY, XLP, XLU, XLRE, XLB. The signals and portfolio is constructed against an in-simple period 2015-2023 and the final portfolio is evaluated against the out-of-sample period January 2024 through April 2026.
 
-The following assumptions are made throughout the research process. Portfolio construction uses a dollar-neutral long-short approach consisting of 20 long and 20 short positions with equal weighting applied within each sleeve. Signals are processed using a cross-sectional rank transformation and shifted forward by one trading day to eliminate lookahead bias. Portfolios are rebalanced at fixed deterministic intervals of 1, 5, 10, or 21 trading days depending on the underlying signal horizon. Transaction costs are modeled as a constant linear cost of 10 basis points per trade with no additional assumptions for market impact or slippage. The strategy remains fully invested at all times while risk exposure is dynamically scaled using an equity-curve regime filter: when a strategy's equity curve falls below its 20 day moving average, then portfolio exposure is reduced to 25\% of nominal size.
+I make the following assumptions throughout the research process. Portfolio construction uses a dollar-neutral long-short approach consisting of 20 long and 20 short positions with equal weighting applied within each sleeve. Signals are processed using a cross-sectional rank transformation and shifted forward by one trading day to eliminate lookahead bias. I explore different fixed rebalancing frequencies: 1, 5, 10, or 21 trading days depending on the underlying signal horizon. I model the transaction costs as a constant linear cost of 10 basis points per trade with no additional assumptions for market impact or slippage. The strategy remains fully invested at all times while risk exposure is dynamically scaled using an equity-curve regime filter: when a strategy's equity curve falls below its 20 day moving average, then portfolio exposure is reduced to 25\% of nominal size.
 
-The multi-step research process moves from broad signal discovery toward increasingly structured portfolio construction and robustness testing. The first step focused on identifying promising sources of cross-sectional alpha across several distinct strategy families including momentum, multiple forms of mean reversion, distance-pairs trading, sector-relative dislocations, and event-driven gap effects. Multiple versions of each signal are systematically explored using different return definitions, lookback windows, and rebalance frequencies. The focus at this step is deliberately exploratory rather than optimization. The aim is to identify signal families exhibiting persistent predictive structure without relying on aggressive conditioning or parameter tuning.
+I move from broad signal discovery toward an increasingly structured portfolio and robustness testing. The first step focuses on identifying promising sources of cross-sectional alpha from distinct signal families. These families include momentum, multiple forms of mean reversion, distance-pairs trading, sector-relative dislocations, and event-driven gap effects. I explore multiple versions of each signal systematically using different return definitions, lookback windows, and rebalance frequencies. At this stage, I make few assumptions and deliberately avoid tuning any parameters. The aim is to identify signal families exhibiting persistent predictive structure without relying on aggressive tuning.
 
-The strongest standalone signals are rebuilt with regime aware conditioning and some dynamic risk scaling overlays. The conditioning filters are used as gating mechanisms to selectively enable or disable exposure under specific market environments. The gating mechanisms explored include trend, volatility, breadth, correlation, dispersion, panic, and sector dislocation regimes. All sleeves also incorporated a baseline equity curve risk scaler that reduced exposure when a strategy's recent performance deteriorated. After conditioning, the return correlations of the best performing sleeves are explored and used to combine complementary signals into pairwise portfolios. This step identifies which sleeves contributed genuinely additive diversification benefits versus those that were largely redundant.
+The strongest signals are rebuilt with regime aware conditioning and some dynamic risk scaling overlays. The conditioning filters are used as gating mechanisms to enable or disable exposure under specific market environments. The gating mechanisms explored include trend, volatility, breadth, correlation, dispersion, panic (large short-term drawdowns), and sector dislocation regimes. All sleeves also incorporate a baseline equity curve risk scaler that reduces exposure if a strategy's recent performance deteriorates.
 
-The final steps focus on higher level portfolio architecture and robustness. Using insights from the pairwise interaction analysis, several hand designed target portfolios are constructed around distinct investment philosophies: conservative low turnover designs to more aggressive volatility sensitive structures. The best configuration intentionally combines defensive mean reversion sleeves with more aggressive distance-pairs and volatility expansion sleeves to balance stability and convexity across market regimes. These portfolios are further extended with additional momentum, event-driven, and sector-relative sleeves under multiple weighting schemes including equal weight, volatility scaled, Sharpe scaled, and ridge regularized mean variance optimization. Finally, ablation testing removes some individual sleeves and entire strategy families to verify that portfolio performance isn't dependent on any single sleeve and that the diversification structure remains stable.
+After conditioning, I consider the return correlations of the best performing sleeves and use the results to combine possibly complementary signals into 2-sleeve portfolios. This step helps identify  sleeves contributing genuinely additive diversification versus those that are largely redundant.
 
-\section{Signals}
+Lastly, I turn to higher level portfolio architecture and robustness. Using insights from the 2-sleeve portfolio interactions, I test a set of target portfolios around distinct investment philosophies from conservative low turnover to more aggressive volatility sensitive structures. The best configuration combines defensive mean reversion sleeves with more aggressive distance-pairs and volatility expansion sleeves that balances stability and convexity across market regimes. I further extend the final portfolio with additional momentum, event-driven, and sector-relative sleeves and test multiple weighting schemes including equal weight, volatility scaled, Sharpe scaled, and ridge regularized mean variance optimization. Finally, I test removing some individual sleeves and entire signal families to verify that portfolio performance isn't dependent on any single sleeve and that the diversification structure remains stable.
 
-All signals are tested as dollar-neutral cross-sectional portfolios, with ranking, rebalancing, liquidity constraints, and transaction cost assumptions applied consistently across all experiments. Six different signal families are explored: momentum, active return mean reversion, residual return mean reversion, sector-relative mean reversion, distance-pairs mean reversion, and gap reversion.
+\section{Signal Discovery}
+I test six different signal families: momentum, active return mean reversion, residual return mean reversion, sector-relative mean reversion, distance-pairs mean reversion, and gap reversion. Table 1 gives the definitions and economic intuition behind each signal.
+
+The base rows of Table 2 show each signal family's performance before any conditioning or risk scaling. The monotonic momentum signal uses a 120-day window and achieves a 0.606 base Sharpe. When I removed the magnitude weighting, performance plummeted (0.606 $\to$ 0.177). This suggests the signal's strength comes from path consistency: a stock that drifts upward on most days is more likely to continue than one with the same cumulative return concentrated in a few large moves.
+
+For active-return mean reversion, I use the z-score variant which standardizes each stock's short-term active return deviation by its own volatility. The base Sharpe is a modest 0.372, but the volatility normalization is what allows the signal to respond so well to conditioning later. For residual mean reversion, I tested two residualization engines. The factor-model approach runs a cross-sectional Barra-style regression each day regressing stock returns simultaneously on market and sector factors to extract residuals. The ETF-factor approach instead runs a time-series regression for each stock individually against the sector ETF return series. The trading formula is identical in both cases. The ETF-factor branch produces a stronger standalone signal (0.694 vs 0.179 base Sharpe) because time-series residualization preserves more of the return structure, but as I show below, the factor-model variant responds better to conditioning.
+
+Distance-pairs produces the highest gross Sharpe of any family (1.549 for $k$=3, 60-day z-score), but also the highest turnover (12.9\%). The correlation partner matching identifies tight relative-value relationships that revert reliably, but the signal updates frequently as z-scores shift causing higher costs.
+
+Sector-relative mean reversion starts weak (0.227 base Sharpe) suggesting that within-sector moves are noisier than market-wide or idiosyncratic ones and need additional filtering to be tradable. Gap reversion isolates the effect to single-day residual shocks (0.626 Sharpe). It captures only the overnight repricing of idiosyncratic moves which explains both its moderate standalone strength and its low correlation with the other signals.
 
 \begin{table}[H]
     \centering
     \small
-    \begin{tabular}{llrrr}
+    \begin{tabular}{p{2.8cm} >{\raggedright\arraybackslash}p{4.5cm} >{\raggedright\arraybackslash}p{7cm}}
         \toprule
-        Family & Variant & Net Sharpe & Turnover & Max DD \\
+        Signal Family & Formula & Description \\
         \midrule
-        \textbf{Monotonic Momentum} & Base (120d, rebal 21d) & 0.606 & 5.100\% & $-$14.700\% \\
-        & + low-dispersion scaling (60d, q30) & 0.769 & 3.983\% & $-$10.146\% \\
+        Monotonic Momentum &
+        $h^{(w)}_{i,t} = \frac{1}{w}\sum_{k} \mathbf{1}(\operatorname{sign}(r_{i,t-k}) = \operatorname{sign}(\mu^{(w)}_{i,t-k}))$ \newline\newline $s^{\mathrm{mon}}_{i,t} = h^{(w)}_{i,t} \cdot |\mu^{(w)}_{i,t}|$ &
+        Rewards path consistency, not just cumulative return. Multiplies the fraction of days where the return agreed in sign with the rolling mean by the magnitude of that mean. Stocks trending persistently in one direction, not just on average, are more likely to continue. \\
         \midrule
-        \textbf{Active-Return MR} & Base (5d reversal, rebal 10d) & 0.557 & 11.700\% & $-$12.900\% \\
-        & + uptrend scaling (20/100d) & 0.708 & 5.200\% & $-$6.700\% \\
-        & + high residual dispersion gate (20d, q75) & 1.279 & 1.733\% & $-$3.173\% \\
+        Active-Return MR &
+        $s^{\mathrm{mr}}_{i,t} = -\bar{r}^{(w)}_{i,t}$ \newline\newline $s^{\mathrm{zrev}}_{i,t} = -\frac{\bar{r}^{(f)}_{i,t} - \mu^{(s)}_{i,t}}{\sigma^{(s)}_{i,t}}$ &
+        Bets that stocks which recently outperformed or underperformed the market tend to revert. The plain variant negates the rolling active return. The z-score variant standardizes the short-term deviation from a long-term baseline by the stock's own active-return volatility. The same raw move counts less when the stock is already volatile. \\
         \midrule
-        \textbf{Residual MR} & Base (ETF-factor 5d, rebal 10d) & 0.694 & 11.900\% & $-$7.900\% \\
-        & + uptrend scaling (20/100d) & 0.918 & 5.100\% & $-$4.400\% \\
-        & + high residual dispersion gate (20d, q75) & 1.083 & 1.542\% & $-$4.538\% \\
+        Residual MR &
+        $s^{\mathrm{res}}_{i,t} = -\bar{\tilde{r}}^{(w)}_{i,t}$ &
+        Applies the same reversal logic to returns residualized against market beta and sector factors. Removing common factor exposures isolates the idiosyncratic moves preventing market or sector moves from contaminating the cross-sectional signal. \\
         \midrule
-        \textbf{Distance-Pairs MR} & Base ($k$=3, 60d z-score, rebal 10d) & 1.078 & 12.911\% & $-$9.709\% \\
+        Distance-Pairs MR &
+        $z_{i,t} = \frac{d_{i,t} - \bar{d}^{(w)}_{i,t}}{\sigma^{(w)}(d_{i,t})}$ \newline\newline $s^{\text{pairs}}_{i,t} = -\operatorname{clip}(z_{i,t}, -2, 2)$ &
+        Trades relative-value convergence among historically similar stocks. For each stock, identifies $k$ nearest partners using a correlation-based distance metric on normalized log price paths. The signal is the clipped z-score of the deviation from the average partner path. \\
         \midrule
-        \textbf{Sector-Relative} & Base (z-score 5/60, rebal 10d) & 0.248 & 11.900\% & $-$15.200\% \\
-        & + uptrend scaling (20/100d) & 0.584 & 5.100\% & $-$5.000\% \\
-        & + high residual dispersion gate (20d, q75) & 0.886 & 2.021\% & $-$5.926\% \\
+        Sector-Relative MR &
+        $s^{\text{sector}}_{i,t} = -\overline{(r_{i,t} - r^{\text{sector}}_{g(i),t})}^{(w)}$ &
+        Fades moves relative to the stock's sector ETF rather than the broad market, where $g(i)$ maps each stock to its sector. Isolates within-sector dislocations that may revert as the stock converges back toward sector peers. \\
         \midrule
-        \textbf{Event / Gap Reversion} & Base (residual gap reversal, rebal 10d) & 0.626 & 11.100\% & $-$10.500\% \\
-        & + uptrend scaling (50/200d) + vol contraction gate & 0.825 & 3.599\% & $-$4.383\% \\
+        Gap Reversion &
+        $s^{\text{gap}}_{i,t} = -\tilde{r}_{i,t-1}$ &
+        Fades large single-day idiosyncratic price shocks. A large positive residual move yesterday produces a negative signal today. Uses factor-neutral returns to ensure the effect is in the idiosyncratic component and not in market or sector moves. \\
         \bottomrule
     \end{tabular}
-    \caption{Signal conditioning progression from base through best risk-scaled and conditioned variants. Monotonic Momentum and Distance-Pairs MR showed no improvement from conditioning beyond the rows shown.}
-    \label{tab:conditioning-progression}
+    \caption{Signal family definitions.}
 \end{table}
 
-Table 1 shows the progression from base (no scaling, no conditioning) through the best risk scaled variant to the best conditioned variant for each family. This illustrates how much of the final signal quality came from the raw signal versus the overlay.
+Several patterns stand out when conditioning signals to market regimes (see Table 2, conditioned rows). Both the active-return and residual mean reversion variants achieve their highest net Sharpes when gated to high residual-dispersion regimes. These regimes are periods when cross-sectional idiosyncratic movement is elevated and the reversal signal has more dislocations to work with. For active-return mean reversion, the z-score variant responds far better to conditioning than the plain reversal. Once gated to high residual dispersion it jumps to 1.279 net Sharpe, the highest conditioned signal across all families. The z-score normalization is key here: by scaling out each stock's baseline volatility before conditioning, the dispersion gate selects for genuinely unusual cross-sectional dislocations rather than periods when a few high-vol names are noisy. For residual mean reversion, the factor-model variant responds better to conditioning than the ETF-factor variant despite its weaker base performance. The cross-sectional regression strips out market and sector structure more aggressively and leaves a cleaner idiosyncratic residual. When the dispersion gate then selects for elevated idiosyncratic movement, there is less systematic contamination in the signal. Sector-relative mean reversion also responds strongly to conditioning (0.227 $\to$ 0.886). By contrast, distance-pairs shows no improvement from conditioning. The raw relative-value convergence signal is already strong on its own because the partner-matching mechanism implicitly conditions on the stability of the peer relationship.
 
-The largest improvements came from conditioning in the active return mean reversion and sector-relative families. For these families the gating to high residual-dispersion regimes more than doubled the net Sharpe while cutting turnover by roughly 80\%. For distance-pairs, neither scaling nor conditioning improved the base signal. The raw relative-value convergence signal is already strong on its own. For monotonic momentum, dispersion scaling helped but conditioning added nothing further.
+Risk scaling tells a similar story (see Table 2, scaled rows). Uptrend scaling requires the broad market to be in an uptrend before taking full position size. This substantially improves all three mean reversion families while cutting turnover by more than half. The intuition is that mean reversion signals work best when dislocations are temporary. In a sustained downtrend what looks like a dislocation may actually be the start of a repricing. So scaling down in those regimes avoids the worst false signals. Momentum signals are helped by a different scaler: low-dispersion scaling. This scaler reduces position size when cross-sectional dispersion is elevated. This lifts monotonic momentum Sharpe from 0.606 to 0.769. The intuition is that high dispersion environments tend to be noisy for trend following because individual stock paths become less persistent. Gap reversion benefits from a combination of uptrend scaling and volatility contraction gating pushing net Sharpe to 0.825 while cutting turnover from 11.1\% to 3.6\%. Distance-pairs, again, shows no benefit from scaling.
 
-The consistent pattern across families: conditioning filters improved net Sharpe primarily by reducing turnover (and therefore cost drag) rather than by increasing gross alpha. The filters act as regime gates that keep the strategy out of environments where its signal is noisy rather than amplifying the signal in good environments.
-
-Several patterns stand out across families. The conditioned mean reversion variants --- both active-return and residual --- achieved the highest net Sharpes when gated to high residual-dispersion regimes, where cross-sectional idiosyncratic movement is elevated and the reversal signal has more to work with. Distance-pairs mean reversion had the highest gross Sharpe (1.549) but also the highest turnover, making it the most cost-sensitive family. The momentum signal was the only one with meaningful positive benchmark correlation (+0.253), while distance-pairs was the only signal with negative benchmark correlation ($-$0.179) --- making them natural portfolio complements. Sector-relative and event sleeves had near-zero benchmark correlation, meaning they contribute diversification from the index without taking a strong directional view on market regime.
+In sum, the conditioning filters and risk scaling improve net Sharpe primarily by reducing turnover and therefore transaction cost drag rather than by increasing alpha. They act as regime gates that keep the strategy out of environments where its signal is noisy rather than amplifying the signal in good environments. The final row for each family in Table 2 represents the best candidate variant for portfolio construction.
 
 \begin{table}[H]
     \centering
     \resizebox{\textwidth}{!}{%
-    \begin{tabular}{llllrrrrr}
+    \begin{tabular}{llrrrrl}
         \toprule
-        Family & Signal & Scaling & Cond.\ Gate & Net SR & Gross SR & Turnover & Max DD & $\rho_{\text{bench}}$ \\
+        Family & Variant & Net SR & Gross SR & Turnover & Max DD & $\rho_{\text{bench}}$ \\
         \midrule
-        Monotonic Mom. & 120d, rebal 21d & Low-disp. & None & 0.769 & 0.910 & 3.983\% & $-$10.146\% & 0.253 \\
-        Active-Ret.\ MR & Z-score 5d/60d, rebal 10d & Uptrend 20/100d & High resid.\ disp. & 1.279 & 1.426 & 1.733\% & $-$3.173\% & 0.143 \\
-        Residual MR & Factor-model 5d, rebal 10d & Uptrend 20/100d & High resid.\ disp. & 1.083 & 1.192 & 1.542\% & $-$4.538\% & 0.092 \\
-        Dist.-Pairs MR & $k$=3, 60d z-score, rebal 10d & None & None & 1.078 & 1.549 & 12.911\% & $-$9.709\% & $-$0.179 \\
-        Sector-Rel.\ MR & Sector-rel.\ 5d, rebal 10d & Uptrend 20/100d & High resid.\ disp. & 0.886 & 1.014 & 2.021\% & $-$5.926\% & 0.019 \\
-        Event / Gap Rev. & Resid.\ gap rev., rebal 10d & Uptrend 50/200d & Vol contraction & 0.825 & 1.093 & 3.599\% & $-$4.383\% & 0.043 \\
+        \textbf{Monotonic Momentum} & Base (120d, rebal 21d) & 0.606 & 0.763 & 5.072\% & $-$14.708\% & 0.262 \\
+        & + low-dispersion scaling (60d, q30) & 0.769 & 0.910 & 3.983\% & $-$10.146\% & 0.253 \\
+        \midrule
+        \textbf{Active-Return MR} & Base (z-score 5d/60d, rebal 10d) & 0.372 & 0.834 & 11.490\% & $-$11.741\% & 0.189 \\
+        & + uptrend scaling (20/100d) & 0.644 & 0.908 & 4.792\% & $-$6.069\% & 0.160 \\
+        & + high residual dispersion gate (20d, q75) & 1.279 & 1.426 & 1.733\% & $-$3.173\% & 0.143 \\
+        \midrule
+        \textbf{Residual MR} & Base (factor-model 5d, rebal 10d) & 0.179 & 0.687 & 10.946\% & $-$9.197\% & 0.145 \\
+        & + uptrend scaling (20/100d) & 0.695 & 1.034 & 4.945\% & $-$4.227\% & 0.140 \\
+        & + high residual dispersion gate (20d, q75) & 1.083 & 1.192 & 1.542\% & $-$4.538\% & 0.092 \\
+        \midrule
+        \textbf{Distance-Pairs MR} & Base ($k$=3, 60d z-score, rebal 10d) & 1.078 & 1.549 & 12.911\% & $-$9.709\% & $-$0.179 \\
+        \midrule
+        \textbf{Sector-Relative} & Base (sector-rel.\ 5d, rebal 10d) & 0.227 & 0.694 & 11.999\% & $-$15.969\% & 0.147 \\
+        & + uptrend scaling (20/100d) & 0.551 & 0.848 & 5.339\% & $-$8.177\% & 0.134 \\
+        & + high residual dispersion gate (20d, q75) & 0.886 & 1.014 & 2.021\% & $-$5.926\% & 0.019 \\
+        \midrule
+        \textbf{Event / Gap Reversion} & Base (residual gap reversal, rebal 10d) & 0.626 & 1.178 & 11.113\% & $-$10.508\% & 0.128 \\
+        & + uptrend scaling (50/200d) + vol contraction gate & 0.825 & 1.093 & 3.599\% & $-$4.383\% & 0.043 \\
         \bottomrule
     \end{tabular}%
     }
-    \caption{Best conditioned signal variant per family.}
-    \label{tab:best-conditioned-signals}
+    \caption{Signal conditioning progression from base to best risk-scaled and conditioned variants.}
+    \label{tab:conditioning-progression}
 \end{table}
-
 
 \section{Portfolio Construction}
 
-\subsection{Identifying Diversification Opportunities}
+\subsection{Sleeve Correlations}
 
-Before assembling a portfolio, the return correlations across conditioned sleeves are examined to understand which families might pair well together and why.
+I first look at return correlations across conditioned and risk-scaled sleeves to understand which families might pair well together and why. Figure 1 reveals two natural clusters. Active-return MR, residual MR, and sector-relative MR form a correlated block with pairwise correlations in the 0.37 to 0.56 range. This makes economic sense since these are all expressions of the same underlying cross-sectional reversal phenomenon. Residualization and sector anchoring change the implementation characteristics and regime behavior, but the core bet is similar. Stocks that moved too much recently should revert.
 
 \begin{figure}[htbp]
     \centering
@@ -113,21 +139,19 @@ Before assembling a portfolio, the return correlations across conditioned sleeve
     \label{fig:correlations}
 \end{figure}
 
-The correlation matrix reveals two natural clusters. Active-return MR, residual MR, and sector-relative MR form a correlated block with pairwise correlations in the 0.37--0.56 range. This makes economic sense --- these are all expressions of the same underlying cross-sectional reversal phenomenon. Residualization and sector anchoring change the implementation characteristics and regime behavior, but the core bet is similar: stocks that moved too much recently should revert.
+Distance-pairs mean reversion (DPMR) stands apart from this cluster. Its correlations to every other family stay around 0.04 to 0.15. Even though DPMR is also a form of mean reversion, its reference point is different. It trades convergence toward a stock's nearest historical peers rather than reversal toward a cross-sectional or factor-adjusted mean. That distinction produces a return stream that behaves like a separate alpha source.
 
-Distance-pairs mean reversion (DPMR) stands apart from this cluster. Its correlations to every other family stay around 0.04--0.15. Even though DPMR is also a form of mean reversion, its reference point is fundamentally different --- it trades convergence toward a stock's nearest historical peers rather than reversal toward a cross-sectional or factor-adjusted mean. That distinction produces a return stream that behaves like a separate alpha source entirely.
+Monotonic momentum correlates only 0.16 to 0.18 with the MR families. This is low enough to suggest that momentum and reversal are complementary rather than offsetting. A momentum sleeve paired with reversal sleeves should produce diversification rather than cancellation.
 
-Monotonic momentum correlates only 0.16--0.18 with the MR families. This is low enough to suggest that momentum and reversal are structurally complementary rather than offsetting --- a momentum sleeve paired with reversal sleeves should produce genuine diversification rather than cancellation.
+Event-driven gap reversion also appears fairly independent with correlations mostly below 0.23. It captures short-horizon idiosyncratic dislocations on a timescale distinct from both the slower reversal processes and the multi-week momentum signal.
 
-Event-driven gap reversion also remains fairly independent, with correlations mostly below 0.23. It captures short-horizon idiosyncratic dislocations on a timescale distinct from both the slower reversal processes and the multi-week momentum signal.
+No pair of families exhibits dangerously high correlation. Even the strongest relationship (active-return MR and sector-relative MR at 0.56) is moderate rather than redundant. This suggests that a multi-engine portfolio combining sleeves across these clusters should produce materially better risk-adjusted performance than selecting any single best signal.
 
-No pair of families exhibits dangerously high correlation. Even the strongest relationship (active-return MR vs sector-relative MR at 0.56) is moderate rather than redundant. This suggests that a multi-engine portfolio combining sleeves across these clusters should produce materially better risk-adjusted performance than selecting any single best signal.
+Notably, conditioning doesn't collapse the sleeves into the same regime trade. Despite many sleeves using similar filters (dispersion, breadth, volatility contraction), the realized return streams remain differentiated. Conditioning should help improve the implementation without destroying the diversification that makes portfolio economically appealing.
 
-An important finding is that conditioning did not collapse the sleeves into the same regime trade. Despite many sleeves using similar filters (dispersion, breadth, volatility contraction), the realized return streams remained differentiated. Conditioning improved implementation quality without destroying the diversification structure that makes portfolio construction worthwhile.
+\subsection{Sleeve Selection}
 
-\subsection{Building the Portfolio}
-
-The correlation analysis points toward a natural portfolio architecture: start with a core of low-correlation sleeves from different families, then layer in additional variants that provide regime-specific exposure. The portfolio is built incrementally, adding one sleeve at a time and tracking the marginal impact on Sharpe and drawdown.
+The two strongest standalone signals after conditioning are the mean reversion sleeves: active-return MR (1.279 net Sharpe) and residual MR (1.083 net Sharpe). I begin the portfolio buildout by combining these two sleeves despite their moderate correlation ($\sim$0.4), then look for additional sleeves that can improve not only Sharpe but also drawdown and turnover characteristics. The portfolio is built incrementally by adding one sleeve at a time and tracking the marginal impact on each metric. Table 3 summarizes the sleeve selection process.
 
 \begin{table}[htbp]
     \centering
@@ -150,9 +174,9 @@ The correlation analysis points toward a natural portfolio architecture: start w
     \label{tab:portfolio-buildout}
 \end{table}
 
-The buildout starts with two sleeves from the correlated MR cluster: residual MR and active-return MR. These share moderate correlation ($\sim$0.4), so combining them improves Sharpe from 1.07 to 1.24 but does not dramatically reduce drawdown. The real diversification begins at step 3 when the first distance-pairs sleeve is added. Sharpe jumps from 1.24 to 1.56 while max drawdown simultaneously drops from $-$6.0\% to $-$3.8\%. This is the correlation structure from Figure~\ref{fig:correlations} showing up in live portfolio construction --- DPMR's orthogonality to the MR complex translates directly into diversification benefit.
+The portfolio starts with the two strongest sleeves from the correlated MR cluster. Combining them improves Sharpe from 1.07 to 1.24, but because they share moderate correlation, the combination doesn't dramatically reduce drawdown. Diversification of the portfolio really starts when adding the distance-pairs sleeves. Sharpe jumps from 1.24 to 1.56 while max drawdown also drops from $-$6.0\% to $-$3.8\%. The low correlation of DPMR to the MR sleeves drives the improvement. As discussed in the correlation analysis, DPMR trades convergence toward historical peers rather than cross-sectional reversal, producing a genuinely distinct return stream despite also being a form of mean reversion.
 
-What's unusual is that additional DPMR variants continue adding value even though they belong to the same signal family. All four DPMR sleeves share the same base construction ($k=3$ nearest partners, z-scored spread reversal clipped to $[-2, 2]$), but they differ along three dimensions that make them economically distinct:
+Additional DPMR variants (see Table 4) continue adding incremental value even though they belong to the same signal family. All four DPMR sleeves share the same base construction ($k=3$ nearest partners, z-scored spread reversal clipped to $[-2, 2]$), but they differ along three key dimensions that make them economically distinct.
 
 \begin{table}[htbp]
     \centering
@@ -162,26 +186,28 @@ What's unusual is that additional DPMR variants continue adding value even thoug
         Sleeve & Z Window & Rebal. & Conditioning & Role \\
         \midrule
         DPMR z10 + panic & 10 & 10d & Panic regime ($-$5\% in 10d) & Fast crisis-reversion; episodic \\
-        DPMR z20 + vol contr. & 20 & 21d & Vol contraction (10d $<$ 60d vol) & Slow calmer-market convergence \\
-        DPMR z60 + vol exp. & 60 & 5d & Vol expansion (10d $>$ 60d vol) & Persistent dislocation in turbulence \\
+        DPMR z20 + vol contr. & 20 & 21d & Vol contraction (10d $<$ 60d vol) & Slow calmer market \\
+        DPMR z60 + vol exp. & 60 & 5d & Vol expansion (10d $>$ 60d vol) & Dislocation in turbulence \\
         DPMR z60 + none & 60 & 10d & Always on & Baseline structural convergence \\
         \bottomrule
     \end{tabular}
-    \caption{Distance-pairs sleeve parametrization. All sleeves share the same base construction ($k=3$ nearest partners, z-scored spread reversal clipped to $[-2, 2]$).}
+    \caption{Distance-pairs sleeve parametrization.}
     \label{tab:dpmr-sleeves}
 \end{table}
 
-The conditioning filters effectively partition the same alpha engine across different market environments rather than creating duplicate exposure. The panic sleeve (z10) is the most reactive --- it only trades after severe market drawdowns and has extremely low realized turnover (0.6\% daily) because the condition is rarely active. It functions as an episodic crisis-reversion bet with minimal drag in normal environments. The vol-contraction sleeve (z20) activates during calmer regimes where pair spreads are reverting at a steady pace. The vol-expansion sleeve (z60) captures persistent dislocations in turbulent environments using the fastest rebalance (5d). The always-on sleeve (z60) is the structural convergence engine --- no gate means it trades in all regimes, which makes it the highest-turnover component (12.9\% daily) but also the highest standalone Sharpe (1.549).
+The conditioning filters effectively partition the same alpha engine across different market environments rather than creating duplicate exposure. The panic sleeve (z10) is the most reactive. It only trades after severe market drawdowns and has extremely low realized turnover (0.6\% daily) because it's rarely active. It functions as an episodic crisis-reversion bet with minimal drag in normal environments. The vol-contraction sleeve (z20) activates during calmer regimes where pair spreads are steadily reverting. The vol-expansion sleeve (z60) captures persistent dislocations in turbulent environments using the fastest rebalance (5d). The always-on sleeve (z60) is the structural convergence engine. Since it has no gate, it trades in all regimes which leads to high turnover (12.9\% daily), but also the highest standalone Sharpe (1.549).
 
-Together these four sleeves form the portfolio's core. After adding all four DPMR variants (steps 3--6), the portfolio reaches a 1.883 Sharpe with a $-$2.8\% max drawdown. The always-on sleeve notably increases turnover (3.8\% $\rightarrow$ 5.5\% at step 5), but the panic sleeve at step 6 actually reduces aggregate turnover back to 4.7\% --- its episodic nature means it contributes alpha without adding continuous trading burden.
+Together these four sleeves form the portfolio's core diversification. Adding all four DPMR variants (steps 3 to 6), the portfolio reaches a 1.883 Sharpe with a $-$2.8\% max drawdown. The always-on sleeve notably increases turnover (3.8\% $\rightarrow$ 5.5\% at step 5), but the panic sleeve at step 6 reduces aggregate turnover back to 4.7\%. Its episodic nature means it contributes alpha without adding continuous trading burden.
 
-Steps 7 and 8 add the two orthogonal diversifiers identified in the correlation analysis. Monotonic momentum (crash-gated) improves Sharpe from 1.88 to 1.99 while drawdown stays controlled. The final residual-gap reversion sleeve (breadth-gated) pushes Sharpe to 2.04 while simultaneously reducing max drawdown to $-$2.35\% --- improving both return efficiency and downside behavior, which is a strong indicator of genuine diversification rather than return stacking.
+With the core DPMR and MR sleeves in place, I tested additional sleeves from the remaining uncorrelated families --- monotonic momentum, event-driven gap reversion, and sector-relative mean reversion --- to further diversify the portfolio and improve its properties beyond Sharpe alone. These families operate on different timescales and capture different types of dislocations, so the goal was to find sleeves that could reduce drawdown or smooth returns rather than simply add more of the same alpha.
 
-The net result: an 8-sleeve portfolio with nearly double the Sharpe of the best standalone signal. Every sleeve addition improved the portfolio monotonically --- there was no step where diversification stopped working.
+Monotonic momentum (crash-gated) improves Sharpe from 1.88 to 1.99 while drawdown stays controlled. The final residual-gap reversion sleeve (breadth-gated) pushes Sharpe to 2.04 while simultaneously reducing max drawdown to $-$2.35\%, improving both return efficiency and downside behavior. Sector-relative sleeves were also tested and contributed modestly as secondary diversifiers but were not included in the final portfolio because they added less incremental value than the momentum and gap reversion alternatives.
+
+The net result is an 8-sleeve portfolio with nearly double the Sharpe of the best standalone signal. Every sleeve addition improves the portfolio monotonically across all three key metrics.
 
 \subsection{Robustness}
 
-The portfolio's Sharpe ratio is tested for stability along two dimensions: sensitivity to sleeve removal (ablation) and sensitivity to the weighting scheme.
+I test the portfolio's stability along two dimensions: sensitivity to the weighting scheme and sensitivity to sleeve removal (ablation).
 
 \begin{figure}[htbp]
     \centering
@@ -190,21 +216,15 @@ The portfolio's Sharpe ratio is tested for stability along two dimensions: sensi
     \label{fig:robustness}
 \end{figure}
 
-The portfolio was robust across weighting schemes. Equal-weight, equal-volatility, equal-Sharpe, and ridge-regularized mean-variance optimization all produced net Sharpes above 1.8. This is important because it indicates the diversification benefit is structural --- it doesn't depend on getting the weights exactly right.
+The portfolio is robust across weighting schemes. Equal-weight, equal-volatility, equal-Sharpe, and ridge-regularized mean-variance optimization all produced net Sharpes above 1.8. This indicates that the diversification benefit is structural rather than dependent on getting the weights exactly right.
 
-Extension testing swept combinations of additional momentum, event-driven, and sector-relative sleeves. The best equal-weight extension paired one monotonic momentum sleeve with one residual-gap reversion sleeve, improving the base 6-sleeve portfolio from 1.883 to 2.039 Sharpe. But the key robustness finding is how stable the result was across nearby configurations:
+Removing individual sleeves caused limited Sharpe degradation. No single sleeve removal dropped the portfolio below 1.8 Sharpe, confirming that the portfolio's strength comes from the diversification structure itself rather than from any one dominant alpha engine. The portfolio can tolerate the loss of any individual component without collapsing.
 
-\begin{itemize}
-    \item \texttt{breadth\_40} vs \texttt{breadth\_60} gating on the event sleeve: 2.039 vs 2.038 Sharpe (effectively interchangeable)
-    \item Adding a second event sleeve did not improve on the simpler two-sleeve extension
-    \item Sector-relative sleeves helped as secondary diversifiers (1.972) but were not critical
-\end{itemize}
+The portfolio is also insensitive to specific parameterization choices within sleeves. Varying the breadth gate threshold on the event sleeve (40th vs 60th percentile) produced effectively identical results (2.039 vs 2.038 Sharpe). Adding a second event sleeve did not improve on the simpler configuration, and sector-relative sleeves contributed modestly as secondary diversifiers (1.972 Sharpe) but were not necessary for the portfolio to maintain strong performance. The key robustness finding is not the specific 2.039 Sharpe of the best configuration, but how stable the result was across nearby configurations.
 
-Removing individual sleeves caused limited Sharpe degradation. No single sleeve removal dropped the portfolio below 1.8 Sharpe. This confirmed that the portfolio's strength comes from the diversification structure itself rather than from any one dominant alpha engine. The portfolio can tolerate the loss of any individual component without collapsing.
+\subsection{Sleeve Attribution}
 
-\subsection{Final Portfolio Attribution}
-
-The attribution analysis of the final 8-sleeve equal-volatility portfolio shows how each component contributes to overall performance:
+Table 5 shows how each sleeve contributes to the overall performance of the portfolio. The table illustrates the diversification of the final portfolio and also highlights the different roles the sleeves are playing in the portfolio.
 
 \begin{table}[htbp]
     \centering
@@ -227,23 +247,21 @@ The attribution analysis of the final 8-sleeve equal-volatility portfolio shows 
     \label{tab:sleeve-attribution}
 \end{table}
 
-Return contribution is spread evenly across sleeves --- the largest contributor accounts for 16.1\% and the smallest for 9.2\%, with most in the 10--14\% range. No single sleeve dominates. This is the attribution profile of a genuinely diversified portfolio, not a concentrated bet dressed up with peripheral hedges.
+Returns are spread evenly across sleeves. The largest contributor accounts for 16.1\% and the smallest for 9.2\%, with most in the 10\% to 14\% range. No single sleeve dominates. This result shows that the portfolio is not a concentrated bet.
 
-The vol-contraction DPMR sleeve is the most efficient component in the portfolio. It contributes 13.8\% of returns while accounting for only 7.3\% of variance --- an efficiency ratio of 1.9x. This sleeve acts as a stabilizing relative-value engine during calmer volatility regimes, adding return with relatively little incremental risk.
+The vol-contraction DPMR sleeve is the most efficient component in the portfolio. It contributes 13.8\% of returns while accounting for only 7.3\% of variance giving an efficiency ratio of 1.9x. This sleeve acts as a stabilizing relative-value engine during calmer volatility regimes by adding return with relatively little incremental risk.
 
-The residual gap-reversion sleeve is the most operationally expensive component (28.5\% of portfolio turnover) but contributes 12.2\% of returns with only 10\% of variance. It is expensive to trade, but it provides genuinely orthogonal alpha that justifies the cost. The residual MR and active-return MR sleeves occupy the opposite end of the spectrum --- they contribute moderate returns with low turnover (4.9\% and 3.3\%), functioning as stable core anchors rather than high-efficiency alpha generators.
+The residual gap-reversion sleeve is the most operationally expensive component (28.5\% of portfolio turnover) but contributes 12.2\% of returns with only 10\% of variance. It is expensive to trade, but it provides genuinely orthogonal alpha that justifies the cost. The residual MR and active-return MR sleeves occupy the opposite end of the spectrum. They contribute moderate returns with low turnover (4.9\% and 3.3\%) and function as stable core anchors rather than high-efficiency alpha generators.
 
-During the portfolio's worst drawdown window (August 2021 to February 2022, 205 trading days), the panic DPMR sleeve and the monotonic momentum sleeve both experienced losses. Meanwhile, several core relative-value sleeves remained positive. This means the portfolio's drawdown resilience comes from structural diversification across sleeves rather than from any dedicated crash hedge --- the same correlation structure that justified the portfolio design in the first place is what protects it during stress.
+During the portfolio's worst drawdown window (August 2021 to February 2022, 205 trading days), the panic DPMR sleeve and the monotonic momentum sleeve both experienced losses. On the other hand, several core relative-value sleeves remained positive. This means the portfolio's drawdown resilience comes from structural diversification across sleeves rather than from any dedicated crash hedge. So the same correlation structure that justified the portfolio design in the first place is what protects it during stress.
 
 \section{Implementation}
 
-Some of the individual sleeves are turnover intensive, but the overall portfolio is substantially improved through diversification, conditioning, and slower horizon balancing. The final portfolio remains profitable under elevated transaction cost assumptions, has moderate aggregate turnover, and scales naturally through volatility targeting rather than raw directional exposure.
+Some sleeves are turnover intensive, but the overall portfolio remains profitable under a variety of transaction cost assumptions, has moderate aggregate turnover, and scales naturally through volatility targeting rather than raw directional exposure.
 
-\subsection{Transaction Costs and Portfolio-Level Stabilization}
+\subsection{Transaction Costs, Turnover, and Capacity}
 
-Several individual sleeves are fragile under higher cost assumptions. The residual gap-reversion sleeve (9.7\% daily turnover) drops from a 1.177 gross Sharpe to effectively zero at 20 bps and turns negative by 22 bps. The always-on DPMR sleeve (12.9\% daily turnover) degrades from a 1.549 gross Sharpe to 0.373 net at 25 bps. These are not robust standalone implementations.
-
-The diversified portfolio tells a different story. At the baseline 10 bps assumption, the portfolio retains a 2.089 net Sharpe against a 2.611 gross --- a 20\% cost drag. At 16 bps, the portfolio still holds a 1.774 net Sharpe, while the residual gap sleeve has already dropped to 0.247 and the always-on DPMR to 0.794. At 25 bps --- roughly 2.5x a reasonable institutional estimate for liquid S\&P 500 names --- the portfolio retains a 1.304 Sharpe even as two of its eight sleeves have individually gone flat or negative.
+Aggregate portfolio turnover is moderate at 4.7\% daily, but the execution burden is concentrated rather than evenly distributed across sleeves. Figure 3 shows the net Sharpe of each sleeve and the portfolio over a range of transaction cost assumptions. Several sleeves are highly sensitive to elevated costs. The residual gap-reversion sleeve (9.7\% daily turnover) drops from a 1.177 gross Sharpe to effectively zero at 20 bps. The always-on DPMR sleeve (12.9\% daily turnover) degrades from a 1.549 gross Sharpe to 0.373 net at 25 bps. These are not robust standalone implementations.
 
 \begin{figure}[htbp]
     \centering
@@ -252,11 +270,21 @@ The diversified portfolio tells a different story. At the baseline 10 bps assump
     \label{fig:cost-sensitivity}
 \end{figure}
 
-The portfolio's cost robustness comes from the same diversification structure that drives its Sharpe. High-turnover sleeves contribute alpha but their cost drag is diluted by lower-turnover sleeves that carry moderate but stable Sharpe ratios with minimal execution burden. The residual MR sleeve (1.5\% daily turnover) barely moves across cost assumptions --- 1.192 gross, 1.083 net at 10 bps, still 0.920 at 25 bps. The active-return MR sleeve behaves similarly. These stable core sleeves anchor the portfolio's cost profile while the faster sleeves contribute incremental alpha at lower cost levels.
+Yet the diversified portfolio behaves differently. At the baseline 10 bps assumption, the portfolio retains a 2.089 net Sharpe with roughly a 20\% cost drag. At 16 bps, the portfolio still holds a 1.774 net Sharpe while the residual gap sleeve has already fallen to 0.247 and the always-on DPMR sleeve to 0.794. Even at 25 bps the portfolio maintains a 1.304 Sharpe despite multiple individual sleeves becoming marginal or unprofitable.
 
-\subsection{Turnover, Conditioning, and Capacity}
+The portfolio’s cost robustness comes from the same diversification structure that drives its Sharpe. High-turnover sleeves contribute alpha, but their cost drag is diluted by lower-turnover sleeves that carry stable Sharpe ratios with minimal trading activity. The residual MR sleeve (1.5\% daily turnover) barely moves across cost assumptions, declining from a 1.192 gross Sharpe to 1.083 net at 10 bps and still maintaining a Sharpe of 0.920 at 25 bps. The active-return MR sleeve behaves similarly. These slower sleeves stabilize the portfolio’s implementation profile while the faster sleeves contribute incremental alpha during favorable environments.
 
-Aggregate portfolio turnover is 4.7\% daily --- moderate for a long-short portfolio --- but the execution burden is concentrated rather than evenly distributed across sleeves.
+Conditioning is a major reason the turnover profile remains manageable. Conditioning filters reduce execution burden by keeping sleeves inactive during regimes where their signals are noisy or trades would be low alpha and cost-expensive. The active-return MR sleeve illustrates the effect. Its base variant runs 11.7\% daily turnover with a 0.557 Sharpe, but after trend scaling and high residual-dispersion gating, turnover falls to 1.8\% while Sharpe rises to 1.279. The conditioning filter eliminates roughly 85% of trading activity while more than doubling risk-adjusted performance.
+
+Similar patterns appear across multiple families. Residual MR turnover falls from 11.9\% to 1.5\%, sector-relative turnover from 11.9\% to 2.0\%, and gap-reversion turnover from 11.1\% to 3.6\% after volatility-contraction gating. Without conditioning, several sleeves would likely be operationally difficult and cost-prohibitive. With it, the residual MR and active-return MR sleeves become among the most scalable components in the portfolio.
+
+The unconstrained always-on DPMR sleeve is the main execution bottleneck in the portfolio. At 12.9\% daily turnover with no conditioning gate to reduce trade frequency, it generates continuous pair-spread trading activity across all market regimes. As capital scales, correlated positioning among pair-convergence traders would compress the spreads this sleeve trades, while execution slippage compounds with the already-high cost drag.
+
+The residual gap-reversion sleeve faces a different implementation constraint: it concentrates trading immediately after large idiosyncratic moves, precisely when liquidity in the affected names is thinnest and bid-ask spreads are widest. The vol-expansion DPMR sleeve combines fast rebalancing with activation during turbulent markets, when spread convergence is less reliable and slippage risk is elevated.
+
+Overall, the portfolio appears reasonably implementable at moderate scale because the conditioned lower-turnover sleeves offset the faster pair-trading and event-driven components. The real capacity constraints are concentrated in a small subset of fast-turnover sleeves rather than spread uniformly across the portfolio.
+
+
 
 \begin{table}[htbp]
     \centering
@@ -280,17 +308,9 @@ Aggregate portfolio turnover is 4.7\% daily --- moderate for a long-short portfo
     \label{tab:turnover-capacity}
 \end{table}
 
-Conditioning plays a central role in making this turnover profile manageable. The conditioning framework does not just improve Sharpe --- it directly reduces implementation burden by keeping sleeves inactive during regimes where their signals are noisy and trades would be both alpha-poor and cost-expensive. The active-return MR sleeve illustrates this clearly: its base variant runs 11.7\% daily turnover with a 0.557 Sharpe, but after trend scaling and high residual-dispersion gating, turnover drops to 1.8\% while Sharpe rises to 1.279. The conditioning filter eliminated roughly 85\% of the trading activity while more than doubling risk-adjusted performance. Similar patterns appear in the residual MR sleeve (11.9\% $\rightarrow$ 1.5\% turnover), the sector-relative sleeve (11.9\% $\rightarrow$ 2.0\%), and the gap-reversion sleeve (11.1\% $\rightarrow$ 3.6\% after vol-contraction gating). Without conditioning, several of these sleeves would be operationally difficult and cost-prohibitive. With it, the slower residual MR and active-return MR sleeves become among the most scalable components in the portfolio.
-
-The aggregate turnover remains moderate precisely because these conditioned low-turnover sleeves offset the faster distance-pairs and event-driven components. At moderate institutional scale, the portfolio's liquid large-cap universe (top-300 by rolling dollar volume) provides reasonable execution feasibility overall --- but the real execution burden and the binding capacity constraints are concentrated in the same three sleeves: the always-on DPMR (12.9\%), the residual gap-reversion (9.7\%), and the vol-expansion DPMR (8.0\%).
-
-The always-on DPMR sleeve is the primary bottleneck. At 12.9\% daily turnover with no conditioning gate to reduce trade frequency, it generates continuous pair-spread trading activity across all market regimes. As capital scales, correlated positioning among pair-convergence traders would compress the spreads this sleeve trades, and execution slippage would compound with the already-high cost drag. The residual gap-reversion sleeve faces a different constraint: it concentrates trading immediately after large idiosyncratic moves, precisely when liquidity in the affected names is thinnest and bid-ask spreads are widest. The vol-expansion DPMR sleeve combines fast rebalancing (5-day) with activation during turbulent markets, when spread convergence is less reliable and slippage risk is elevated.
-
-Live deployment at scale would require execution scheduling to avoid crossing against the same dislocations simultaneously across sleeves, borrow management for the short book, and dynamic participation controls to limit market impact in the fastest-rebalancing components. The slower residual MR and active-return MR sleeves would likely scale with minimal degradation; the fastest DPMR and event sleeves would be the first to encounter capacity limits.
-
 \subsection{Leverage and Volatility Targeting}
 
-Because the diversified portfolio maintains controlled drawdowns, low realized volatility ($\sim$2\% annualized unlevered), and stable cost characteristics after conditioning, leverage becomes a natural scaling mechanism rather than an independent enhancement. The portfolio behaves more like a diversified market-neutral risk-premia process than a high-volatility directional strategy, making volatility targeting a straightforward way to convert high risk-adjusted returns into economically meaningful absolute returns.
+The final portfolio maintains low realized volatility ($\sim$2\% annualized unlevered) and controlled drawdowns, making leverage a natural scaling mechanism rather than a source of structural fragility. After conditioning and diversification, the portfolio behaves more like a diversified market-neutral risk-premia process than a directional equity strategy, so I evaluate several target-volatility overlays to convert the high risk-adjusted returns into economically meaningful absolute returns. Figure 4 shows the resulting equity curves under different target volatility assumptions. Scaling to a 10\% target volatility substantially increases cumulative returns while maintaining moderate drawdowns, with maximum drawdown on the levered series remaining near 14\%. Importantly, the conditioning and diversification structure remain stable under leverage: the low cross-sleeve correlations, turnover reduction from conditioning, and distinct economic roles played by the sleeves continue functioning after scaling. This stability is what makes controlled leverage feasible despite the portfolio’s exposure to short-horizon sleeves.
 
 \begin{figure}[htbp]
     \centering
@@ -299,11 +319,10 @@ Because the diversified portfolio maintains controlled drawdowns, low realized v
     \label{fig:target-vol}
 \end{figure}
 
-Scaling to a 10\% target volatility substantially increases cumulative returns while maintaining moderate drawdowns. The levered series preserves the portfolio's structural properties --- sleeve correlations remain stable under leverage, conditioning and risk scaling continue functioning, and diversification between sleeves remains effective after scaling. Maximum drawdown on the levered series was roughly 14\%, and rolling Sharpe dynamics were stable rather than explosive. The leverage is feasible precisely because of the implementation characteristics described above: diversification across heterogeneous sleeves, conditioning-driven turnover reduction, and low cross-sleeve correlation produce a portfolio with the stability profile needed to support controlled leverage.
 
 \section{Out-of-Sample Results}
 
-The portfolio degraded out-of-sample but did not collapse. Post-2024, returns flattened, rolling Sharpe compressed, and drawdowns increased --- but the portfolio remained profitable, the equity curve continued trending upward, and diversification characteristics persisted. The trajectory suggests regime sensitivity rather than overfit failure.
+On the out-of-sample period, the portfolio degrades but does not collapse. As shown in Figure 5, post-2024 returns flatten, rolling Sharpe compresses, and drawdowns increase, yet the portfolio remains profitable and the equity curve continues trending upward. The behavior suggests regime sensitivity rather than obvious overfitting.
 
 \begin{figure}[htbp]
     \centering
@@ -312,58 +331,54 @@ The portfolio degraded out-of-sample but did not collapse. Post-2024, returns fl
     \label{fig:oos-equity}
 \end{figure}
 
+The diversification structure also persists out-of-sample. Benchmark correlation remains low, drawdowns stay materially smaller than SPY’s, and realized volatility remains controlled even through the 2024 regime shift. Table 7 summarizes the annual results under 10\% target-volatility scaling. The levered portfolio produced 12–20\% returns in favorable environments, -9.2\% in the worst year (2024), and a maximum drawdown of $-$11.4\%. The 50.1\% return in 2020 reflects cross-sectional dispersion exploding during COVID — extreme but economically consistent with the portfolio design.
+
+2024 is the only negative year ($-$9.2\%, $-$1.350 Sharpe). The market environment was dominated by strong index trends and concentrated mega-cap leadership, reducing cross-sectional reversal opportunities. A portfolio built primarily on short-horizon mean reversion, statistical arbitrage, and relative-value convergence would be expected to struggle in exactly this regime. The momentum persistence was unfavorable to the portfolio’s predominant mean-reversion construction.
+
+The recovery after 2024 is important for distinguishing regime sensitivity from overfitting. Rather than continuing to decay, the portfolio recovers in 2025 (0.840 Sharpe, +12.8\%) and strengthens further in 2026 through April (2.136 Sharpe, +31.5\%). This drawdown-recovery pattern supports the interpretation that the weakness was regime-driven rather than structural failure. Rolling Sharpe dynamics also remained stable under leverage, suggesting that the conditioning and diversification structure continued functioning out-of-sample.
+
+The portfolio performs best during high-dispersion environments. The strongest years are 2020 (COVID volatility, 3.235 Sharpe) and 2022 (rate-driven selloff, 3.388 Sharpe), periods where cross-sectional opportunity expanded as stocks moved more independently. In these environments, the crisis-conditioned DPMR and event sleeves activated more frequently while several volatility-gated sleeves engaged during vol expansion.
+
+Overall, the out-of-sample results show that the portfolio does not perform equally well across all regimes, but they do demonstrate persistence of edge, stability of the diversification structure, and positive expectancy on unseen data. The out-of-sample period captures both the cost of the portfolio’s regime dependence (2024) and the benefit of its structural resilience (the 2025–2026 recovery).
+
 \begin{table}[htbp]
     \centering
     \small
-    \begin{tabular}{clrrrrrrrr}
+    \begin{tabular}{clrrrrrr}
         \toprule
-        Year & Period & Return & Sharpe & Vol & Max DD & Lev.\ Ret. & Lev.\ SR & Lev.\ Max DD & SPY Ret. \\
+        Year & Period & Lev.\ Ret. & Lev.\ SR & Lev.\ Vol & Lev.\ Max DD & SPY Ret. \\
         \midrule
-        2015 & IS & 1.100\% & 1.041 & 1.100\% & $-$1.100\% & 5.400\% & 1.010 & $-$5.300\% & 1.300\% \\
-        2016 & IS & 3.800\% & 3.064 & 1.200\% & $-$0.400\% & 20.100\% & 3.064 & $-$2.100\% & 12.000\% \\
-        2017 & IS & 0.500\% & 0.481 & 1.100\% & $-$1.000\% & 2.600\% & 0.481 & $-$5.100\% & 21.800\% \\
-        2018 & IS & 3.200\% & 2.120 & 1.500\% & $-$0.900\% & 16.700\% & 2.116 & $-$4.200\% & $-$4.600\% \\
-        2019 & IS & 3.900\% & 2.324 & 1.700\% & $-$0.700\% & 19.000\% & 2.251 & $-$3.600\% & 31.200\% \\
-        2020 & IS & 18.300\% & 3.364 & 5.000\% & $-$2.400\% & 50.100\% & 3.235 & $-$6.300\% & 18.300\% \\
-        2021 & IS & 1.300\% & 0.718 & 1.900\% & $-$1.400\% & 4.200\% & 0.528 & $-$7.000\% & 28.700\% \\
-        2022 & IS & 9.000\% & 3.399 & 2.600\% & $-$0.600\% & 40.900\% & 3.388 & $-$2.600\% & $-$18.200\% \\
-        2023 & IS & 2.400\% & 1.474 & 1.600\% & $-$1.000\% & 12.000\% & 1.466 & $-$5.000\% & 26.400\% \\
+        2015 & IS & 5.400\% & 1.010 & 10.000\% & $-$5.300\% & 1.300\% \\
+        2016 & IS & 20.100\% & 3.064 & 10.000\% & $-$2.100\% & 12.000\% \\
+        2017 & IS & 2.600\% & 0.481 & 10.000\% & $-$5.100\% & 21.800\% \\
+        2018 & IS & 16.700\% & 2.116 & 10.000\% & $-$4.200\% & $-$4.600\% \\
+        2019 & IS & 19.000\% & 2.251 & 10.000\% & $-$3.600\% & 31.200\% \\
+        2020 & IS & 50.100\% & 3.235 & 10.000\% & $-$6.300\% & 18.300\% \\
+        2021 & IS & 4.200\% & 0.528 & 10.000\% & $-$7.000\% & 28.700\% \\
+        2022 & IS & 40.900\% & 3.388 & 10.000\% & $-$2.600\% & $-$18.200\% \\
+        2023 & IS & 12.000\% & 1.466 & 10.000\% & $-$5.000\% & 26.400\% \\
         \midrule
-        \textbf{2024} & \textbf{OOS} & $\mathbf{-1.900\%}$ & $\mathbf{-1.350}$ & \textbf{1.400\%} & $\mathbf{-2.400\%}$ & $\mathbf{-9.200\%}$ & $\mathbf{-1.350}$ & $\mathbf{-11.400\%}$ & \textbf{24.900\%} \\
-        \textbf{2025} & \textbf{OOS} & \textbf{4.900\%} & \textbf{1.273} & \textbf{3.800\%} & $\mathbf{-1.500\%}$ & \textbf{12.800\%} & \textbf{0.840} & $\mathbf{-6.700\%}$ & \textbf{17.900\%} \\
-        \textbf{2026} & \textbf{OOS} & \textbf{9.900\%} & \textbf{2.414} & \textbf{4.000\%} & $\mathbf{-1.500\%}$ & \textbf{31.500\%} & \textbf{2.136} & $\mathbf{-4.500\%}$ & \textbf{15.100\%} \\
+        \textbf{2024} & \textbf{OOS} & $\mathbf{-9.200\%}$ & $\mathbf{-1.350}$ & \textbf{10.000\%} & $\mathbf{-11.400\%}$ & \textbf{24.900\%} \\
+        \textbf{2025} & \textbf{OOS} & \textbf{12.800\%} & \textbf{0.840} & \textbf{10.000\%} & $\mathbf{-6.700\%}$ & \textbf{17.900\%} \\
+        \textbf{2026} & \textbf{OOS} & \textbf{31.500\%} & \textbf{2.136} & \textbf{10.000\%} & $\mathbf{-4.500\%}$ & \textbf{15.100\%} \\
         \bottomrule
     \end{tabular}
-    \caption{Annual performance summary. IS = in-sample (2015--2023), OOS = out-of-sample (2024--2026). Lev.\ columns reflect 10\% target volatility scaling.}
+    \caption{Annual performance summary under 10\% target volatility scaling. IS = in-sample (2015--2023), OOS = out-of-sample (2024--2026).}
     \label{tab:annual-performance}
 \end{table}
 
-2024 is the only negative-return year in the entire series ($-$1.9\% unlevered, $-$1.350 Sharpe), and the evidence points to regime instability rather than structural decay. Strong index trends and concentrated mega-cap leadership reduced cross-sectional reversal opportunities. Momentum persistence was unfavorable to the portfolio's predominantly mean-reversion construction. Reduced idiosyncratic dispersion weakened the signals that depend on cross-sectional spread. A portfolio built on short-horizon mean reversion, statistical arbitrage, and relative-value convergence should struggle in exactly this kind of environment. The fact that it did is economically consistent with the portfolio design.
-
-The recovery after 2024 is important for distinguishing regime sensitivity from overfit. Rather than continuing to decay --- which would suggest structural overfit --- the portfolio recovered in 2025 (1.273 Sharpe, +4.9\%) and strengthened further in 2026 through April (2.414 Sharpe, +9.9\%). This trajectory --- drawdown, recovery, resumed positive performance --- supports the interpretation that the weakness was temporary regime-driven degradation rather than a dead strategy. The portfolio performs best during high-dispersion environments: 2020 (COVID volatility, 3.364 Sharpe) and 2022 (rate-driven selloff, 3.399 Sharpe) were the standout years by a wide margin. In these periods, cross-sectional opportunity expands as more stocks move independently, the crisis-conditioned DPMR and event sleeves engage specifically during high-volatility episodes, and several volatility-gated sleeves activate during vol expansion.
-
-Beyond point Sharpe estimates, the portfolio retained its structural diversification properties throughout the out-of-sample period. Benchmark correlation remained low, drawdowns stayed materially smaller than SPY's, and volatility remained controlled. These characteristics persisted across the regime shift. The levered 10\% target-vol series produced 12--20\% returns in favorable environments, $-$9.2\% in the worst OOS year (2024), and a maximum drawdown of $-$11.4\%. The 50.1\% return in 2020 reflects stat-arb dispersion exploding during COVID --- extreme but economically consistent. Rolling Sharpe dynamics remained stable rather than explosive under leverage, confirming that diversification between sleeves remained effective after scaling and that conditioning continued functioning out-of-sample.
-
-The out-of-sample results do not show that this portfolio works equally well in all environments --- nor should they. They do show persistence of edge, robustness of the diversification structure, and continued positive expectancy after unseen data exposure. The portfolio is regime-dependent, and the OOS period demonstrated both the cost of that dependence (2024) and the benefit of structural resilience (2025--2026 recovery).
-
 \section{Risks}
 
-Several important limitations and risks remain despite the portfolio's strong in-sample and out-of-sample performance.
+Several important risks remain despite the portfolio’s decent in-sample and out-of-sample performance.
 
-The largest methodological risk is overfitting. The research process explored a broad space of signal families, conditioning filters, rebalance schedules, scaling rules, and portfolio combinations. Although the workflow emphasized economic intuition and robustness rather than aggressive parameter optimization --- and the later out-of-sample period provides a genuine holdout test --- repeated experimentation inevitably increases the probability that some results reflect noise rather than persistent structure.
+The largest methodological risk is overfitting. The research process explored a broad space of signal families, conditioning filters, rebalance schedules, scaling rules, and portfolio combinations. Although the workflow emphasizes economic intuition and robustness rather than aggressive parameter tuning repeated experimentation inevitably increases the probability that some results reflect noise rather than persistent market structure. The out-of-sample period test mitigates this somewhat, but imperfectly.
 
-The dataset itself also introduces uncertainty. Data was sourced through yfinance, which does not guarantee a survivorship-bias-free historical universe. Historical S\&P 500 membership may therefore be imperfectly reconstructed, potentially overstating results by excluding delisted or distressed securities that would have existed in a true historical universe.
+The portfolio is clearly regime-dependent. Most sleeves are fundamentally mean-reversion or relative-value strategies. These sleeves can struggle during persistent directional trends, momentum-driven markets, or environments where convergence relationships break down. This behavior is visible during the 2024 out-of-sample period. The momentum sleeve partially offsets this exposure, but the portfolio still retains a structural bias toward convergence behavior.
 
-The portfolio is also regime-dependent. Most sleeves are fundamentally relative-value or mean-reversion strategies, which can struggle during persistent directional trends, momentum-driven markets, or structural dislocations where convergence relationships temporarily break down. This behavior was visible during the 2024 out-of-sample period, where the portfolio experienced its weakest sustained performance during a strong momentum regime before recovering later in the sample. The monotonic momentum sleeve partially offsets this exposure, but the portfolio still retains a structural bias toward cross-sectional convergence behavior.
-
-Implementation and market structure risks are also meaningful. Several sleeves --- particularly the always-on distance-pairs sleeve and the residual gap-reversion sleeve --- are sensitive to transaction costs, slippage, and execution quality. The constant 10 bps transaction cost assumption is a simplification and may understate costs during stressed or crowded conditions. As capital scales, crowding effects, borrow constraints, spread widening, or execution delays could materially reduce realized performance.
-
-Finally, the portfolio's diversification properties may not remain stable over time. Much of the portfolio strength comes from combining sleeves with low realized correlation and different regime sensitivities. If market structure changes cause these alpha streams to become more correlated --- for example through increased statistical arbitrage crowding or homogenization of systematic strategies --- then portfolio-level Sharpe could deteriorate even if individual sleeves remain independently profitable.
+Finally, implementation and capacity risks are meaningful. Several sleeves — particularly the always-on distance-pairs sleeve and the residual gap-reversion sleeve — are highly sensitive to transaction costs, slippage, and execution quality. The constant 10 bps transaction cost assumption is a simplification and may understate costs during stressed or crowded conditions. As capital scales, crowding effects, spread widening, borrow constraints, and execution delays could materially reduce realized performance even if the underlying signals remain statistically valid.
 
 \section{Conclusion}
 
-The final eight-sleeve portfolio achieved a 2.039 net Sharpe ratio after 10 basis points of transaction costs in-sample, with no single sleeve contributing more than 16\% of returns. The portfolio's strength came from diversification across economically distinct alpha sources --- distance-pairs relative value as the orthogonal structural core, conditioned mean-reversion variants as stable low-turnover anchors, and monotonic momentum and gap reversion as regime-complementary diversifiers. Conditioning filters improved implementation quality primarily by reducing turnover rather than increasing gross alpha, transforming several otherwise cost-prohibitive sleeves into scalable portfolio components. The diversification structure proved robust: equal-weight, equal-volatility, and optimized weighting schemes all produced net Sharpes above 1.8, ablation of any single sleeve caused limited degradation, and the portfolio retained a 1.304 Sharpe even at 25 bps of assumed costs.
-
-Out-of-sample, the portfolio degraded during the momentum-dominated regime of 2024 ($-$1.9\% return, $-$1.350 Sharpe) but recovered in 2025 and strengthened through April 2026 (2.414 Sharpe), consistent with regime sensitivity rather than overfit. Benchmark correlation remained low and drawdowns stayed controlled throughout. The results suggest that diversification across heterogeneous signal families --- rather than selection of individually optimal signals --- is the more reliable path to stable portfolio-level performance in cross-sectional equity strategies. Natural extensions include walk-forward optimization for parameter stability testing, dynamic regime-aware sleeve weighting, more realistic execution and market impact modeling, and expansion beyond the S\&P 500 universe.
+The final portfolio achieves a 2.039 net Sharpe ratio after 10 bps transaction costs through diversification across economically distinct signal families rather than reliance on any single dominant alpha source. Distance pairs relative value provides the portfolio’s core while conditioned mean reversion, monotonic momentum, and gap reversion contribute complementary return streams with different regime sensitivities and low realized correlation. Conditioning filters materially improve implementation quality by reducing turnover and cost drag. The portfolio remains robust across weighting schemes, ablation tests, and elevated transaction cost assumptions. The out-of-sample results demonstrate regime sensitivity rather than structural collapse: performance weakens during the momentum dominated 2024 regime, but recovers through 2025 and 2026 while maintaining low benchmark correlation and controlled drawdowns.
 
 \end{document}
