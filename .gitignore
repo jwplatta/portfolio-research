@@ -29,10 +29,11 @@ htmlcov/
 *.xlsx
 *.parquet
 ./data/
-!notebooks/data/**
-notebooks/scratch
-notebooks/out
-qc/data
+
+# Notebooks — ignore everything except notebooks/shared/
+notebooks/**
+!notebooks/shared/
+!notebooks/shared/**
 
 # OS
 .DS_Store
@@ -47,17 +48,8 @@ vendor/
 .bundle/
 tmp/
 
-# Schwab tokens
-.schwab_rb/
-
 docs/examples
 /logs
-
-# QuantConnect
-lean.json
-/qc/**/config.json
-/qc/**/results.json
-/qc/**/backtests
 
 .codex/skills
 .claude/skills
