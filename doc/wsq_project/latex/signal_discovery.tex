@@ -1,0 +1,122 @@
+\section{Signal Discovery}
+
+I test six different signal families: momentum, active return mean reversion, residual return mean reversion, sector-relative mean reversion, distance-pairs mean reversion, and gap reversion. Table 1 gives the definitions and economic intuition behind each signal.
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{p{2.8cm} >{\raggedright\arraybackslash}p{4.5cm} >{\raggedright\arraybackslash}p{7cm}}
+        \toprule
+        Signal Family & Formula & Description \\
+        \midrule
+        Monotonic Momentum &
+        $h^{(w)}_{i,t} = \frac{1}{w}\sum_{k} \mathbf{1}(\operatorname{sign}(r_{i,t-k}) = \operatorname{sign}(\mu^{(w)}_{i,t-k}))$ \newline\newline $s^{\mathrm{mon}}_{i,t} = h^{(w)}_{i,t} \cdot |\mu^{(w)}_{i,t}|$ &
+        Rewards path consistency, not just cumulative return. Multiplies the fraction of days where the return agreed in sign with the rolling mean by the magnitude of that mean. Stocks trending persistently in one direction, not just on average, are more likely to continue. \\
+        \midrule
+        Active-Return MR &
+        $s^{\mathrm{mr}}_{i,t} = -\bar{r}^{(w)}_{i,t}$ \newline\newline $s^{\mathrm{zrev}}_{i,t} = -\frac{\bar{r}^{(f)}_{i,t} - \mu^{(s)}_{i,t}}{\sigma^{(s)}_{i,t}}$ &
+        Bets that stocks which recently outperformed or underperformed the market tend to revert. The plain variant negates the rolling active return. The z-score variant standardizes the short-term deviation from a long-term baseline by the stock's own active-return volatility. The same raw move counts less when the stock is already volatile. \\
+        \midrule
+        Residual MR &
+        $s^{\mathrm{res}}_{i,t} = -\bar{\tilde{r}}^{(w)}_{i,t}$ &
+        Applies the same reversal logic to returns residualized against market beta and sector factors. Removing common factor exposures isolates the idiosyncratic moves preventing market or sector moves from contaminating the cross-sectional signal. \\
+        \midrule
+        Distance-Pairs MR &
+        $z_{i,t} = \frac{d_{i,t} - \bar{d}^{(w)}_{i,t}}{\sigma^{(w)}(d_{i,t})}$ \newline\newline $s^{\text{pairs}}_{i,t} = -\operatorname{clip}(z_{i,t}, -2, 2)$ &
+        Trades relative-value convergence among historically similar stocks. For each stock, identifies $k$ nearest partners using a correlation-based distance metric on normalized log price paths. The signal is the clipped z-score of the deviation from the average partner path. \\
+        \midrule
+        Sector-Relative MR &
+        $s^{\text{sector}}_{i,t} = -\overline{(r_{i,t} - r^{\text{sector}}_{g(i),t})}^{(w)}$ &
+        Fades moves relative to the stock's sector ETF rather than the broad market, where $g(i)$ maps each stock to its sector. Isolates within-sector dislocations that may revert as the stock converges back toward sector peers. \\
+        \midrule
+        Gap Reversion &
+        $s^{\text{gap}}_{i,t} = -\tilde{r}_{i,t-1}$ &
+        Fades large single-day idiosyncratic price shocks. A large positive residual move yesterday produces a negative signal today. Uses factor-neutral returns to ensure the effect is in the idiosyncratic component and not in market or sector moves. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Signal family definitions.}
+\end{table}
+
+Table 2 shows the base results for each signal family before any conditioning or risk scaling overlays. The monotonic momentum signal uses a 120-day window and achieves a 0.606 base Sharpe. When I removed the magnitude weighting, performance plummeted (0.606 $\to$ 0.177). This suggests that path consistency is what separates persistent trends from noisy drift and not just cumulative return direction. For active-return mean reversion, the z-score variant has a modest base Sharpe of 0.372 standardizes the reversal by each stock's own volatility. For residual mean reversion, I tested two residualization engines: factor-model and ETF-factor. The ETF-factor branch is stronger standalone (0.694 vs 0.179). Distance-pairs produces the highest gross Sharpe of any family (1.549 for $k$=3, 60-day z-score) with negative benchmark correlation ($-0.179$), but also the highest turnover. The correlation-based partner matching identifies tight relative-value relationships that revert reliably, but the signal updates frequently as z-scores shift leading to higher costs. Sector-relative mean reversion starts weak (0.227 base Sharpe), suggesting that within-sector dislocations are noisier than market-wide or idiosyncratic ones without additional filtering. Gap reversion isolates the effect cleanly to single-day residual shocks (0.626 Sharpe). It captures only the overnight repricing of idiosyncratic moves which explains both its moderate standalone strength and its low correlation with the other signals.
+
+Need to explain teh different facotr models:
+factor_model (labeled "barra_market_sector"):
+  - Uses add_factor_model(factors=["market", "sector"], sector_map=...) then residualize_returns()
+  - Cross-sectional Barra-style regression: for each date, regresses stock returns on market + sector factors simultaneously
+  - Strips both market beta and sector beta cross-sectionally
+
+etf_factor (labeled "etf_factor_returns"):
+- Passes sector ETF return series as factors to the Study, then calls residualize_returns() directly
+- Time-series regression: for each stock individually, regresses its return history against the ETF return series
+- Strips historical time-series correlation with those ETFs
+
+The key difference is cross-sectional vs time-series regression. The trading formula is identical; only how residual returns are constructed differs.
+
+
+Goes in the conditioning explanation:
+- active-return mean reversion responds much better to conditioning than the plain 5-day reversal (0.557 base Sharpe) and ultimately produces the highest conditioned signal across all families.
+- The factor-model variant responds better to conditioning and scaling, ultimately reaching the higher final Sharpe.
+- The factor-model residuals strips out systematic exposures more aggressively which leaves a cleaner idiosyncratic signal for the conditioning filter to work with.
+
+Several patterns stand out when conditioning signals to market regimes (see Table 2, conditioned rows). Both the active-return and residual mean reversion variants achieved their highest net Sharpes when gated to high residual-dispersion regimes when cross-sectional idiosyncratic movement is elevated and the reversal signal has more to work with. For active-return mean reversion, the z-score variant responds far better to conditioning than the plain reversal. Once gated to high residual dispersion it jumps to 1.279 net Sharpe, the highest conditioned signal across all families. Sector-relative mean reversion also responds strongly to conditioning (0.227 $\to$ 0.886). By contrast, distance-pairs shows no improvement from conditioning. The raw relative-value convergence signal is already strong on its own.
+
+The conditioning filters improve net Sharpe primarily by reducing turnover (and therefore cost) rather than by increasing gross alpha. They act as regime gates that keep the strategy out of environments where its signal is noisy rather than amplifying the signal in good environments.
+
+Risk scaling tells a complementary story (see Table 2, scaled rows). Uptrend scaling (requiring the broad market to be in an uptrend before taking full position size) substantially improves all three mean reversion families while cutting turnover by more than half. For momentum, low-dispersion scaling (reducing position size when cross-sectional dispersion is elevated) lifts Sharpe from 0.606 to 0.769. Gap reversion benefits from a combination of uptrend scaling and volatility contraction gating, pushing net Sharpe to 0.825 while cutting turnover from 11.1\% to 3.6\%. Distance-pairs, again, shows no benefit from scaling.
+
+Table 2 summarizes the full progression from base signals through best risk-scaled and conditioned variants for each family. The final row for each family represents the best variant that enters the candidate pool for portfolio construction. The momentum signal is the only one with meaningful positive benchmark correlation (+0.253), while distance-pairs is the only signal with negative benchmark correlation ($-$0.179). This makes them natural portfolio complements. Sector-relative and event sleeves have near-zero benchmark correlation, contributing diversification from the index without taking a strong directional view on market regime.
+
+\begin{table}[H]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llrrrrl}
+        \toprule
+        Family & Variant & Net SR & Gross SR & Turnover & Max DD & $\rho_{\text{bench}}$ \\
+        \midrule
+        \textbf{Monotonic Momentum} & Base (120d, rebal 21d) & 0.606 & 0.763 & 5.072\% & $-$14.708\% & 0.262 \\
+        & + low-dispersion scaling (60d, q30) & 0.769 & 0.910 & 3.983\% & $-$10.146\% & 0.253 \\
+        \midrule
+        \textbf{Active-Return MR} & Base (z-score 5d/60d, rebal 10d) & 0.372 & 0.834 & 11.490\% & $-$11.741\% & 0.189 \\
+        & + uptrend scaling (20/100d) & 0.644 & 0.908 & 4.792\% & $-$6.069\% & 0.160 \\
+        & + high residual dispersion gate (20d, q75) & 1.279 & 1.426 & 1.733\% & $-$3.173\% & 0.143 \\
+        \midrule
+        \textbf{Residual MR} & Base (factor-model 5d, rebal 10d) & 0.179 & 0.687 & 10.946\% & $-$9.197\% & 0.145 \\
+        & + uptrend scaling (20/100d) & 0.695 & 1.034 & 4.945\% & $-$4.227\% & 0.140 \\
+        & + high residual dispersion gate (20d, q75) & 1.083 & 1.192 & 1.542\% & $-$4.538\% & 0.092 \\
+        \midrule
+        \textbf{Distance-Pairs MR} & Base ($k$=3, 60d z-score, rebal 10d) & 1.078 & 1.549 & 12.911\% & $-$9.709\% & $-$0.179 \\
+        \midrule
+        \textbf{Sector-Relative} & Base (sector-rel.\ 5d, rebal 10d) & 0.227 & 0.694 & 11.999\% & $-$15.969\% & 0.147 \\
+        & + uptrend scaling (20/100d) & 0.551 & 0.848 & 5.339\% & $-$8.177\% & 0.134 \\
+        & + high residual dispersion gate (20d, q75) & 0.886 & 1.014 & 2.021\% & $-$5.926\% & 0.019 \\
+        \midrule
+        \textbf{Event / Gap Reversion} & Base (residual gap reversal, rebal 10d) & 0.626 & 1.178 & 11.113\% & $-$10.508\% & 0.128 \\
+        & + uptrend scaling (50/200d) + vol contraction gate & 0.825 & 1.093 & 3.599\% & $-$4.383\% & 0.043 \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{Signal conditioning progression from base through best risk-scaled and conditioned variants. The final row for each family is the best variant that enters the portfolio construction candidate pool. Monotonic Momentum and Distance-Pairs showed no improvement from conditioning beyond the rows shown.}
+    \label{tab:conditioning-progression}
+\end{table}
+
+
+
+\begin{table}[H]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llllrrrrr}
+        \toprule
+        Family & Signal & Scaling & Cond.\ Gate & Net SR & Gross SR & Turnover & Max DD & $\rho_{\text{bench}}$ \\
+        \midrule
+        Monotonic Mom. & 120d, rebal 21d & Low-disp. & None & 0.769 & 0.910 & 3.983\% & $-$10.146\% & 0.253 \\
+        Active-Ret.\ MR & Z-score 5d/60d, rebal 10d & Uptrend 20/100d & High resid.\ disp. & 1.279 & 1.426 & 1.733\% & $-$3.173\% & 0.143 \\
+        Residual MR & Factor-model 5d, rebal 10d & Uptrend 20/100d & High resid.\ disp. & 1.083 & 1.192 & 1.542\% & $-$4.538\% & 0.092 \\
+        Dist.-Pairs MR & $k$=3, 60d z-score, rebal 10d & None & None & 1.078 & 1.549 & 12.911\% & $-$9.709\% & $-$0.179 \\
+        Sector-Rel.\ MR & Sector-rel.\ 5d, rebal 10d & Uptrend 20/100d & High resid.\ disp. & 0.886 & 1.014 & 2.021\% & $-$5.926\% & 0.019 \\
+        Event / Gap Rev. & Resid.\ gap rev., rebal 10d & Uptrend 50/200d & Vol contraction & 0.825 & 1.093 & 3.599\% & $-$4.383\% & 0.043 \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \caption{Best conditioned signal variant per family.}
+    \label{tab:best-conditioned-signals}
+\end{table}
