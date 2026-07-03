@@ -39,7 +39,7 @@ import pandas as pd
 import qstudy as qs
 from qstudy import Study
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "utils"))
 from portfolio_utils import make_equity_curve_regime_scale
 from signal_sweep_utils import (
     N_LONG,
