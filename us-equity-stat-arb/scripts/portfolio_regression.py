@@ -66,11 +66,10 @@ GREEDY_CORE = [_NBO50, _BEAR, _CUMRET, _MONO35, _SSM20]
 
 SLEEVES = GREEDY_CORE + [_RZSCORE, _GAP]
 
-TRAIN_START = "2015-01-01"
-TRAIN_END = "2023-12-31"
+from constants import COST_BPS, OUT_ROOT, TRAIN_END, TRAIN_START
+
 TEST_START = "2024-01-01"  # set to None to skip OOS regression
 TEST_END = "2026-05-31"
-COST_BPS = 10.0
 WEIGHTING_SCHEME = "optimal"  # "equal" | "equal_vol" | "equal_sharpe" | "optimal" | "manual"
 
 # Manual weights — only used when WEIGHTING_SCHEME = "manual".
@@ -85,7 +84,7 @@ MANUAL_WEIGHTS: dict[str, float] = {
     "sector_rel_mom_120d__r21__trend_50_200_mom__cond__breadth_lt50": 1.0,
 }
 
-OUT_DIR = Path(__file__).parent / "out" / "portfolio_regression"
+OUT_DIR = OUT_ROOT / "portfolio_regression"
 
 
 # ---------------------------------------------------------------------------

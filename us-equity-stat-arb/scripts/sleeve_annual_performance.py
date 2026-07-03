@@ -35,12 +35,11 @@ import qstudy.study.metrics as qs_metrics
 # Config
 # ---------------------------------------------------------------------------
 
-COST_BPS = 10.0
+from constants import COST_BPS, OUT_ROOT, WARMUP_YEARS
 # Warm-up period loaded before each fold start so rolling windows are filled
 # from day 1 of the fold. OLS residualization and the equity-curve regime
 # scaler are anchored to fold_start so warm-up data doesn't change in-sample
 # beta estimates or regime decisions.
-WARMUP_YEARS = 1
 FOLDS = [
     ("2015-01-01", "2019-12-31"),
     ("2015-01-01", "2020-12-31"),
@@ -78,7 +77,7 @@ SLEEVES: list[str] = [
     "sector_spy_mom_20d__r5__none__cond__sector_disp_20d_q70",
 ]  # SIGNAL_POOL_SLEEVE_NAMES
 
-OUT_DIR = Path(__file__).parent / "out" / "sleeve_annual_performance"
+OUT_DIR = OUT_ROOT / "sleeve_annual_performance"
 
 
 # ---------------------------------------------------------------------------

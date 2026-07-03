@@ -22,7 +22,9 @@ warnings.filterwarnings("ignore")
 # Constants
 # ---------------------------------------------------------------------------
 
-FACTORS = ["SPY", "XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLRE", "XLB"]
+from constants import FACTOR_TICKERS, N_LONG, N_SHORT  # noqa: F401 — re-exported for callers
+
+FACTORS = FACTOR_TICKERS
 GICS_TO_ETF = {
     "Technology": "XLK",
     "Financial Services": "XLF",
@@ -36,7 +38,6 @@ GICS_TO_ETF = {
     "Basic Materials": "XLB",
     "Communication Services": "XLK",
 }
-N_LONG = N_SHORT = 20
 
 
 # ---------------------------------------------------------------------------

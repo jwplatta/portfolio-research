@@ -48,10 +48,9 @@ FOLDS = [
     ("2015-01-01", "2022-12-31", "2023-01-01", "2023-12-31"),
 ]
 
-COST_BPS = 10.0
-WARMUP_YEARS = 1
+from constants import COST_BPS, OUT_ROOT, WARMUP_YEARS
 
-OUT_DIR = Path(__file__).parent / "out" / "sleeve_walkforward"
+OUT_DIR = OUT_ROOT / "sleeve_walkforward"
 
 
 # ---------------------------------------------------------------------------

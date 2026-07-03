@@ -24,17 +24,15 @@ from qstudy.study.metrics import drawdown_series
 # Config
 # ---------------------------------------------------------------------------
 
-TRAIN_START = "2015-01-01"
-TRAIN_END = "2023-12-31"
+from constants import COST_BPS, OUT_ROOT, TRAIN_END, TRAIN_START, WARMUP_YEARS
+
 OOS_START = "2015-01-01"
 OOS_END = "2026-05-29"
 OOS_SPLIT = pd.Timestamp("2024-01-01")
 VOL_TARGET = 0.10
 MAX_LEVERAGE = 15.0
 ROLLING_WINDOW = 90
-COST_BPS = 10.0
-WARMUP_YEARS = 1
-OUT_DIR = Path(__file__).parent / "out" / "portfolio_oos_analysis"
+OUT_DIR = OUT_ROOT / "portfolio_oos_analysis"
 
 # --- Portfolio-level regime scaler ---
 # Scales down portfolio exposure when the market is in a narrow-breadth bull regime:

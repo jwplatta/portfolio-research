@@ -12,6 +12,7 @@ Outputs:
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -20,8 +21,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
-OUT_DIR = Path(__file__).parent / "out"
-SWEEP_OUT = Path(__file__).parent / "signal_sweeps" / "out"
+sys.path.insert(0, str(Path(__file__).parent.parent / "utils"))
+from constants import OUT_ROOT
+
+OUT_DIR = OUT_ROOT
+SWEEP_OUT = Path(__file__).parent.parent / "signal_sweeps" / "out"
 
 # ---------------------------------------------------------------------------
 # Thresholds — tune these to taste

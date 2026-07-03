@@ -12,6 +12,7 @@ that follow the standard pipeline — see its docstring for details.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Callable
 
@@ -27,20 +28,19 @@ import qstudy as qs
 import qstudy.study.engine as qs_engine
 import qstudy.study.metrics as qs_metrics
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
-
-TRAIN_START = "2015-01-01"
-TRAIN_END = "2023-12-31"
-WARMUP_YEARS = 1
-
-COST_BPS = 10.0
-N_LONG = 20
-N_SHORT = 20
-REBALANCE_PERIODS = [1, 5, 10, 21]
-BENCHMARK_TICKER = "SPY"
-FACTOR_TICKERS = ["SPY", "XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLRE", "XLB"]
+sys.path.insert(0, str(Path(__file__).parent.parent / "utils"))
+from constants import (
+    BENCHMARK_TICKER,
+    COST_BPS,
+    FACTOR_TICKERS,
+    N_LONG,
+    N_SHORT,
+    OUT_ROOT,
+    REBALANCE_PERIODS,
+    TRAIN_END,
+    TRAIN_START,
+    WARMUP_YEARS,
+)
 
 EVAL_START = TRAIN_START  # first year to include in per-year breakdown
 EVAL_END = TRAIN_END

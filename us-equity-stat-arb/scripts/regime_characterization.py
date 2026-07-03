@@ -45,7 +45,9 @@ YEARS = list(range(2015, 2026))
 START = "2013-01-01"
 END = "2026-05-31"
 
-OUT_DIR = Path(__file__).parent / "out" / "regime_characterization"
+from constants import OUT_ROOT
+
+OUT_DIR = OUT_ROOT / "regime_characterization"
 
 
 # ---------------------------------------------------------------------------

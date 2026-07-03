@@ -55,8 +55,8 @@ FOLDS = [
     ("2015-01-01", "2022-12-31", "2023-01-01", "2023-12-31"),
 ]
 
-COST_BPS = 10.0
-WARMUP_YEARS = 1
+from constants import COST_BPS, OUT_ROOT, WARMUP_YEARS
+
 WEIGHTING_SCHEMES = ["equal", "equal_vol", "equal_sharpe"]
 # cumret_spread_20_252__r5__vol_20_60__cond__none
 # dist_mr_k3_z60__r21__none__cond__none
@@ -184,7 +184,7 @@ ALL_PORTFOLIOS = [
     ("3x. Greedy-5\n+ va20\n[high drawdown]", GREEDY_CORE + [_VOLACCEL]),
 ]
 
-OUT_DIR = Path(__file__).parent / "out" / "walkforward_portfolio_combinations"
+OUT_DIR = OUT_ROOT / "walkforward_portfolio_combinations"
 
 COLORS = [
     "#4e79a7",
