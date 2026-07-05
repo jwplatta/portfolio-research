@@ -1,0 +1,68 @@
+\section{Signal Discovery}
+
+I test eight signal families spanning mean reversion, momentum, and volatility mechanisms. Table~\ref{tab:signal_families} defines the core signal construction for each family. All signals are applied cross-sectionally to a long-short portfolio of the top-300 liquid S\&P~500 names.
+
+\begin{table}[H]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabularx}{\textwidth}{p{0.13\textwidth} p{0.06\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.38\textwidth}}
+        \toprule
+        Signal Family & Tier & Formula & Description \\
+        \midrule
+
+        Distance-Pairs MR &
+        T1 &
+        $s^{\mathrm{dp}} = -\mathrm{clip}(z,\,-2,\,2)$,\newline
+        $z = (d - \bar{d}^w) / \sigma^w(d)$ &
+        Trades convergence among $k$ nearest-neighbor partners matched by correlation distance on log-price paths. Signal is the clipped z-score of the spread from the mean partner path. A narrow-bull gate disables it when breadth is low and SPY is trending up. \\
+        \midrule
+
+        Bear Reversal &
+        T1 &
+        $s^{\mathrm{brv}} = -\bar{r}^{20}$,\newline
+        on when breadth $<\!40\%$ \& SPY $<$ 200d MA &
+        Negates the 20-day rolling return, active only in the bear-plus-narrow-breadth regime. Dormant in normal markets; captures panic-driven overshoots. \\
+        \midrule
+
+        Monotonic Momentum &
+        T1 &
+        $h^w = \tfrac{1}{w}\sum_k \mathbf{1}[\mathrm{sgn}(r_{t-k}) = \mathrm{sgn}(\bar{r}^w)]$,\newline
+        $s^{\mathrm{mon}} = h^w \cdot |\bar{r}^w_{t-5}|$ &
+        Rewards path consistency: fraction of days where return sign agreed with the 252-day mean, scaled by that mean's magnitude. A 5-day skip avoids reversal noise; a breadth gate turns it off in broad rallies. \\
+        \midrule
+
+        Cross-Sectional MR &
+        T2 &
+        $s^{\mathrm{cs}} = -(\bar{r}^{20} - \bar{r}^{252})$ &
+        Fades the deviation of the short-term rolling mean from the annual baseline. Global reversal signal; uses a universal benchmark rather than matched partners. A volatility scaler compresses exposure in high-vol regimes. \\
+        \midrule
+
+        Gap Accumulation &
+        T2 &
+        $s^{\mathrm{ga}} = -\max_{k \leq 3}\, r_{t-k}$ &
+        Fades the largest single-day return in the prior 3 days. A trend gate disables it in uptrends where spikes are more likely to persist. Strongest in choppy or falling markets. \\
+        \midrule
+
+        Sector ETF Momentum &
+        T2 &
+        $s^{\mathrm{ssm}} = \bar{r}^w_{\mathrm{ETF}(i)} - \bar{r}^w_{\mathrm{SPY}}$ &
+        Each stock receives its sector ETF's rolling excess return vs.\ SPY. A dispersion gate activates it only when cross-sector return dispersion is elevated. The only cross-asset signal in the pool. \\
+        \midrule
+
+        Residual MR &
+        T3 &
+        $s^{\mathrm{rz}} = -\mathrm{clip}_{1.5}(\bar{\tilde{r}}^{15} / \sigma^{10}(\tilde{r}))$ &
+        Mean reversion of Barra-lite factor residuals, clipped at $\pm 1.5$ to suppress noise spikes. A mandatory trend gate prevents blow-ups in factor-momentum regimes. \\
+        \midrule
+
+        Volatility Acceleration &
+        T3 &
+        $s^{\mathrm{va}} = -(\sigma^{20} - \sigma^{120})$ &
+        Positive when fast vol is below the slow baseline, betting on a snap-back. Strong in crisis folds but 3--6\% daily turnover consumes 0.5--0.6 Sharpe units at 10~bps. \\
+
+        \bottomrule
+    \end{tabularx}
+    \caption{Signal family definitions. Tier T1 = consistent (positive in almost every year); T2 = strong average with one bad year; T3 = regime-dependent or cost-limited. $\tilde{r}$ denotes factor-residualized returns; $\bar{r}^w$ the $w$-day rolling mean; $\sigma^w$ the rolling standard deviation. Subscript $i$ and time index $t$ suppressed throughout.}
+    \label{tab:signal_families}
+\end{table}

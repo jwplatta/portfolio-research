@@ -1,0 +1,22 @@
+\begin{table}[htbp]
+    \centering
+    \small
+    \begin{tabular}{lrrrrrrr}
+        \toprule
+        Sleeve & Weight & IS SR & OOS SR & IS Ret. & OOS Ret. & IS Risk & OOS Risk \\
+        \midrule
+        dp1z60|nbo50 & 15.2\% &  0.478 & -1.052 &   4.8\% & -40.7\% &  3.8\% &  4.8\% \\
+        brv20        & 13.3\% &  1.082 & -0.548 &   9.9\% & -47.6\% &  6.9\% & 15.0\% \\
+        cs20         & 20.7\% &  1.097 &  0.103 &  34.1\% &   9.6\% & 37.5\% & 30.2\% \\
+        ms252/b35x   & 10.9\% &  0.856 &  1.304 &   5.7\% & 117.4\% &  3.2\% & 11.7\% \\
+        ssm20        & 13.9\% &  0.799 & -0.688 &  27.8\% & -62.3\% & 39.2\% & 24.4\% \\
+        rz15         &  9.2\% &  0.504 & -0.335 &   2.9\% &  -4.9\% &  1.1\% & -0.3\% \\
+        ga3          & 16.9\% &  0.858 & -1.190 &  14.8\% & -71.6\% &  8.5\% & 14.2\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Sleeve attribution for the final 7-sleeve portfolio (GREEDY-5 + ga3 + rz15).
+    Weights are IS-calibrated optimal weights held fixed in OOS (IS: 2015--2023; OOS: 2024--2026).
+    Ret.\ and Risk columns are each sleeve's share of total portfolio mean return
+    ($w_i \mu_i / \mu_p$) and variance ($w_i (\Sigma w)_i / w'\Sigma w$) in each period.}
+    \label{tab:sleeve-attribution}
+\end{table}

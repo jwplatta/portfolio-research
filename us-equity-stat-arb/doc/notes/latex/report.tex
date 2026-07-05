@@ -1,0 +1,354 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage[margin=1in]{geometry}
+\usepackage[section]{placeins}
+\usepackage{float}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+
+\captionsetup{font=small}
+
+\title{Multi-Sleeve Statistical Arbitrage Portfolio Construction for U.S. Equities}
+\author{Joseph Platta}
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This research documents the design, construction, and evaluation of a market-neutral long-short equity portfolio built from cross-sectional signals applied to S\&P 500 equities. The research covers signal discovery across eight families, a walkforward portfolio construction process, and an assessment of both in-sample (2015-2023) and out-of-sample (2024-2026) performance. The portfolio achieves a net Sharpe of 1.91 and annualized alpha of 3.9\% with near-zero beta in-sample after 10 basis points of transaction costs, but its out-of-sample performance exposes a structural regime gap in narrow-breadth bull markets that I address directly in the evaluation.
+
+\section{Methodology}
+
+The research process begins broadly and progressively narrows in on a market-neutral portfolio. I explore eight distinct signal families spanning mean reversion, momentum, and volatility mechanisms. Each family is swept across multiple parameter combinations, rebalance frequencies, risk scalers, and regime gates producing hundreds of candidate sleeves. The most competitive candidates are selected into a sleeve pool through an automated multi-criteria process that balances average Sharpe, worst year Sharpe, and per-year best performance. A transaction cost penalty of 10 basis points is applied throughout all experiments.
+
+Given the breadth of the initial signal sweep, the portfolio construction process imposes several structural constraints to avoid overfitting. Each sleeve uses simple 20-long/20-short equal-weight rank-based positions with no parameter optimization within the signal itself. Regime gates are binary and threshold-based, e.g. breadth percentage, volatility ratio, and have few free parameters. Moreover, the 10 bps cost penalty means high-turnover sleeves pay a real cost that penalizes noisy signals and the walkforward validation described below ensures that no sleeve enters the portfolio simply because it succeeds in a single favorable period.
+
+Portfolio construction proceeds through walkforward greedy sleeve selection using 5 expanding-window folds with one year holdout periods. The training windows expand from 2015-2018 through 2015-2022 with validation years of 2019, 2020, 2021, 2022, and 2023 respectively. All reported Sharpe ratios are computed from daily net returns and annualized using 252 trading days. The annualized return is the mean daily return multiplied by 252, annualized volatility is the daily return standard deviation multiplied by $\sqrt{252}$, and Sharpe is annualized return divided by annualized volatility.
+
+Each greedy run begins with a seed sleeve chosen for its consistency. Candidate seed sleeves must have at least 7 years of data, average net Sharpe above 0.15, worst year Sharpe above -0.50, no more than 45\% negative years, maximum average drawdown of -0.25, and a minimum daily turnover of 0.5\% to filter out mostly dormant sleeves. Candidate seeds are then ranked by a consistency score that's the ratio of average net Sharpe to its standard deviation across years. This rewards stable performance over peak performance. Then each step of the greedy selection optimizes the net Sharpe of the combined portfolio subject to acceptance gates: maximum pairwise correlation below 0.35, minimum Sharpe improvement of 0.01, no drawdown regression beyond 0.1\%, and no turnover regression beyond 0.1\%. At each step, three weighting schemes (equal weight, equal volatility, and equal Sharpe) are tested, and the combination producing the highest net Sharpe wins. After the 5th sleeve, material improvement gates tighten the criteria further: each additional sleeve must improve drawdown by at least 0.1\% and turnover by at least 0.01\%. These tighter gates naturally terminate the process once diminishing marginal improvements fall below the bar.
+
+A handful of candidate portfolios emerge from the greedy selection process based on how frequently their constituent sleeves are selected across folds and seeds. These candidate portfolios are then put through their own walkforward validation, and their net Sharpes, max drawdowns, and turnovers are compared across validation years. These comparisons target portfolio weaknesses and guide the addition of specific auxiliary sleeves to fill gaps.
+
+The final portfolio is evaluated against a hold-out sample. The in-sample covers 2015-2023 and out-of-sample covers 2024 through May 2026. SPY serves as the benchmark, and a regression against SPY evaluates the portfolio's market neutrality and alpha. All data is sourced from yfinance, Interactive Brokers, and investing.com. The tradeable universe is filtered each day to the 300 most liquid S\&P 500 names by 60-day rolling dollar volume. Sector exposures are modeled using the ten major sector ETFs: XLK, XLF, XLE, XLV, XLI, XLY, XLP, XLU, XLRE, and XLB. To mitigate survivorship bias, I construct a per-day S\&P 500 membership mask using historical index composition data. On any given day, only current index members are visible to the pipeline and tickers not yet added or already removed are masked to NaN. For the 2015-2023 window, this produces a universe of approximately 680 tickers (far more than the roughly 500 on any single day), capturing the roughly 20-30 names that turn over each year.
+
+\section{Signals}
+
+Eight signal families are used as candidates for portfolio construction: distance-pairs mean reversion (DPMR), bear reversal (BREV), monotonic momentum (MMOM), cross-sectional mean reversion (XSMR), gap accumulation (GAPA), sector ETF momentum (ETFMOM), residual mean reversion (RZMR), and volatility acceleration (VACC) \cite{Chan2009, Chan2013}. See Table~\ref{tab:signal_families} for the formal signal definitions.
+
+Each signal is tested across rebalance periods of 1, 5, 10, and 21 trading days. Risk scalers modulate position size based on market conditions. For example, a volatility scaler reduces exposure when short-term SPY volatility exceeds its longer-term baseline and a trend scaler compresses positions when SPY's fast moving average crosses above its slow moving average. Regime condition gates go further by switching sleeves fully off in difficult regimes rather than merely scaling down. Across all families, an equity-curve regime scaler reduces positions to 10\% of normal when the strategy's own equity curve falls below its 20-day moving average.
+
+These signal families are complementary by design and cover distinct market regimes (see Appendix~\ref{tab:regimes} for a year-by-year regime summary). The mean reversion signals exploit different scales and data inputs. DPMR captures co-movement divergence between specific stock pairs matched by correlation distance \cite{Gatev2006} and XSMR captures broad rank dislocation across the full S\&P 500 universe. GAPA detects event-driven overnight gaps for mean reversion over short time horizons of 2-3 days. RZMR operates on factor-residualized z-scores at a longer horizon of 10-15 days, stripping market and sector exposure before ranking. In general, the mean reversion signals profit in choppy, range-bound markets like 2018 (a neutral year with high volatility and frequent reversals) and the volatile recovery of 2020.
+
+The momentum signals capture different phenomena using different data. MMOM rewards path consistency, i.e. the fraction of days where return sign agrees with the 252-day mean scaled by that mean's magnitude with a 5-day skip to avoid short-term reversal noise \cite{JegadeeshTitman1993}. ETFMOM captures rotation across sectors using ETF-level data rather than individual stock prices and activates only when sector dispersion is elevated \cite{MoskowitzGrinblatt1999}. These momentum signals profit during trending regimes like the strong persistent bull markets of 2017 and 2019.
+
+Bear reversal and volatility acceleration stand out as more regime-dependent signals. BREV is only active when SPY is in a downtrend and market breadth is below 40\%, capturing panic-induced overshoots during periods like the 2022 bear market. VACC is generally orthogonal to price-based signals, betting on mean reversion in volatility regimes, though its high daily turnover of 3-6\% consumes 0.5-0.6 Sharpe units at 10 bps and ultimately excludes it from the final portfolio on cost grounds.
+
+\begin{table}[H]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabularx}{\textwidth}{p{0.13\textwidth} p{0.06\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.38\textwidth}}
+        \toprule
+        Signal Family & Tier & Formula & Description \\
+        \midrule
+
+        Distance-Pairs MR &
+        T1 &
+        $s^{\mathrm{dp}} = -\mathrm{clip}(z,\,-2,\,2)$,\newline
+        $z = (d - \bar{d}^w) / \sigma^w(d)$ &
+        Trades convergence among $k$ nearest-neighbor partners matched by correlation distance on log-price paths. Signal is the clipped z-score of the spread from the mean partner path. A narrow-bull gate disables it when breadth is low and SPY is trending up. \\
+        \midrule
+
+        Bear Reversal &
+        T1 &
+        $s^{\mathrm{brv}} = -\bar{r}^{20}$,\newline
+        on when breadth $<\!40\%$ \& SPY $<$ 200d MA &
+        Negates the 20-day rolling return, active only in the bear-plus-narrow-breadth regime. Dormant in normal markets; captures panic overshoots. \\
+        \midrule
+
+        Monotonic Momentum &
+        T1 &
+        $h^w = \tfrac{1}{w}\sum_k \mathbf{1}[\mathrm{sgn}(r_{t-k}) = \mathrm{sgn}(\bar{r}^w)]$,\newline
+        $s^{\mathrm{mon}} = h^w \cdot |\bar{r}^w_{t-5}|$ &
+        Rewards path consistency: fraction of days where return sign agreed with the 252-day mean, scaled by that mean's magnitude. A 5-day skip avoids reversal noise; a breadth gate turns it off in broad rallies. \\
+        \midrule
+
+        Cross-Sectional MR &
+        T2 &
+        $s^{\mathrm{cs}} = -(\bar{r}^{20} - \bar{r}^{252})$ &
+        Fades the deviation of the short-term rolling mean from the annual baseline. Global reversal signal; uses a universal benchmark rather than matched partners. A volatility scaler compresses exposure in high-vol regimes. \\
+        \midrule
+
+        Gap Accumulation &
+        T2 &
+        $s^{\mathrm{ga}} = -\max_{k \leq 3}\, r_{t-k}$ &
+        Fades the largest single-day return in the prior 3 days. A trend gate disables it in uptrends where spikes are more likely to persist. Strongest in choppy or falling markets. \\
+        \midrule
+
+        Sector ETF Momentum &
+        T2 &
+        $s^{\mathrm{ssm}} = \bar{r}^w_{\mathrm{ETF}(i)} - \bar{r}^w_{\mathrm{SPY}}$ &
+        Each stock receives its sector ETF's rolling excess return vs.\ SPY. A dispersion gate activates it only when cross-sector return dispersion is elevated. The only cross-asset signal in the pool. \\
+        \midrule
+
+        Residual MR &
+        T3 &
+        $s^{\mathrm{rz}} = -\mathrm{clip}_{1.5}(\frac{\bar{\tilde{r}}^{15}}{\sigma^{10}(\tilde{r})})$ &
+        Mean reversion of Barra-lite factor residuals, clipped at $\pm 1.5$ to suppress noise spikes. A mandatory trend gate prevents blow-ups in factor-momentum regimes. \\
+        \midrule
+
+        Volatility Acceleration &
+        T3 &
+        $s^{\mathrm{va}} = -(\sigma^{20} - \sigma^{120})$ &
+        Positive when fast vol is below the slow baseline, betting on a snap-back. Strong in crisis folds but 3--6\% daily turnover consumes 0.5--0.6 Sharpe units at 10~bps. \\
+
+        \bottomrule
+    \end{tabularx}
+    \caption{Signal family definitions. Tier T1 = positive in almost every year; T2 = strong average with one bad year; T3 = regime-dependent. $\tilde{r}$ denotes factor-residualized returns; $\bar{r}^w$ the $w$-day rolling mean; $\sigma^w$ the rolling standard deviation.}
+    \label{tab:signal_families}
+\end{table}
+
+\section{Portfolio Construction}
+
+\subsection{Walkforward Greedy Sleeve Selection}
+
+Running greedy selection across five expanding-window folds and multiple seed sleeves consistently selected four sleeves: gated distance-pairs mean reversion, bear reversal, cross-sectional mean reversion, and monotonic momentum. These represent complementary sources of return over two forms of mean reversion, crisis alpha, and long-horizon momentum. Their repeated selection across folds and starting points suggests diversification rather than dependence on a particular training window.
+
+The early greedy run uses GAPA as the seed sleeve because it was the top ranked always-on sleeve by consistency score in the starting sleeve pool. Starting with GAPA, the greedy process consistently adds ungated DPMR variants alongside MMOM with a 40\% breadth threshold. BREV appears less frequently, but is a regular addition. This initial core performs well across the bullish validation folds of 2019, 2020, 2021, and 2023 as seen in Figure~\ref{fig:walkforward_sharpes}. Their Sharpes are between 1.0 and 1.8, but it breaks in 2022 with a negative Sharpe of approximately -0.3. The 2022 failure is possibly due to the ungated DPMR sleeves actively losing in a sustained low-dispersion bear market. They dominate the portfolio weight through Sharpe-weighted allocation holding over 50\% combined. On the other hand, the only sleeve that earns in a trending bear market is the GAPA sleeve. However, its weight is so small (4.6\%) that it does not meaningfully influence the portfolio.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/walkforward_pc_val_sharpe_bar.png}
+    \caption{Walkforward validation Sharpe, max drawdown, and turnover for candidate portfolios.}
+    \label{fig:walkforward_sharpes}
+\end{figure}
+
+To address weaknesses in the initial greedy portfolio, the sleeve pool is extended with gated variants of the distance-pairs signal at different rebalance frequencies, and a new sector ETF momentum (ETFMOM) family is added. The best candidates from this exploration replace the ungated DPMR variants in the pool. In particular, a gated variant of the DPMR is used as the new seed sleeve. It ranks first among all pool candidates by consistency score. It posts a positive net Sharpe in every year from 2015 to 2023 with an average of 1.40 versus 0.61-0.90 for the ungated variants. Its success is likely due to the gate firing precisely in the bull market years where DPMR sleeves tend to lose.
+
+The GREEDY-5 core portfolio sleeves emerge from rerunning the walkforward greedy process with these changes. The results improve materially across every fold compared to the initial greedy. The 2019 fold jumps from approximately 1.8 to 2.6 as the gated seed selects a tighter, lower-turnover set of companions. The 2022 fold recovers from -0.3 to approximately +0.1 and the 2023 fold improves from approximately 1.6 to 3.5.
+
+Three specific differences from the initial core drive these improvements. First, the narrow breadth bull gate on the DPMR sleeves does the work of the two ungated DPMR sleeves. When the gated sleeve is the seed, the greedy process never selects another ungated DPMR. Second, the MMOM breadth threshold tightens from 40\% to 35\%. The greedy selection process chooses the tighter threshold 4 of 5 folds versus only 1 of 5 for the looser threshold. The ETFMOM also enters the portfolio in 4 of 5 folds confirming it fills a genuine diversification gap. The 2022 recovery to Sharpe +0.11 is not a direct consequence of the gating logic because the narrow-bull gate does not fire in a trending bear market. The more likely mechanism is that replacing two ungated DPMR sleeves that rebalanced monthly (2022 Sharpes of -1.32 and -0.96 and combined weight 49\%) with a single gated weekly-rebalance version (2022 Sharpe -0.41) changes the weight distribution enough to allow the ETFMOM sleeve (2022 Sharpe of +1.80) to express itself at meaningful weight.
+
+The original goal of the ETFMOM sleeve was to add sector-level momentum exposure to a portfolio otherwise dominated by mean-reversion signals. However, it turned out to behave differently than intended. The signal measures each sector ETF's 20-day return relative to SPY which is momentum by definition, but the 20-day window is short enough that sector relative returns frequently cycle within it. After a sector runs strongly for 10 to 15 days the rolling measure reverses as the window rolls off the initial surge and the stress-dispersion gate activates precisely when sector rotation is underway. So the signal tends to catch sectors near the point of reversal rather than continuation. It behaves more like a sector rotation mean-reversion signal than the momentum signal. Still it has diversification value because of its different data source and regime trigger.
+
+The GREEDY-5 core is still weak in 2022 where the portfolio earns only +0.11 with a -2.5\% max drawdown. ETFMOM helps at a Sharpe of +1.80, but not enough to produce a meaningful positive year.
+
+\subsection{Supporting Sleeves}
+
+See Table~\ref{tab:final_sleeves} for the final portfolio. The final portfolio adds two supporting sleeves.
+
+\begin{table}[ht]
+\centering
+\caption{Final Portfolio Sleeves}
+\label{tab:final_sleeves}
+\begin{tabular}{lllp{8cm}}
+\toprule
+\textbf{\#} & \textbf{Sleeve} & \textbf{Rebalance} & \textbf{Gate / Scaler} \\
+\midrule
+\multicolumn{4}{l}{\textit{GREEDY-5 core}} \\
+1 & Distance-pairs MR   & Weekly    & {\small OFF when breadth $<$ 50\% \& SPY 20d MA $>$ 100d MA} \\
+2 & Bear reversal       & Monthly   & {\small ON when breadth $<$ 40\% \& SPY 50d MA $<$ 200d MA} \\
+3 & Cross-sectional MR  & Weekly    & {\small 0.25$\times$ when SPY 20d vol $>$ SPY 60d vol} \\
+4 & Monotonic momentum  & Monthly   & {\small OFF when $<$35\% stocks above their price 200 days ago} \\
+5 & Sector ETF momentum & Weekly    & {\small ON only when SPY 20d vol $>$ trailing median \& sector ETF 20d dispersion $>$ trailing 70th percentile} \\
+\midrule
+\multicolumn{4}{l}{\textit{Extensions}} \\
+6 & Residual z-score MR & Bi-weekly & {\small 0.25$\times$ when SPY 20d MA $>$ 100d MA} \\
+7 & Gap accumulation    & Monthly   & {\small Fully OFF when SPY 20d MA $>$ 100d MA} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\end{tablenotes}
+\end{table}
+
+GAPA is added specifically to fix the 2022 weakness. As a standalone sleeve, GAPA posts a per-fold Sharpe of +2.88 in 2022 and lifts the portfolio Sharpe from +0.11 to +1.34. The sleeve captures gap reversions that occur even during sustained bear markets, i.e. stocks gap down on overnight selling pressure and partially recover intraday. Notably, in the initial greedy portfolio, GAPA weight was too small in 2022 to mitigate the losses of the DPMR sleeves driving the overall portfolio performance. These losses triggered the equity-curve regime scaler and compressed all positions including GAPA's. Once the GREEDY-5 gating removed the active DPMR losses, GAPA could express itself in 2022 without being suppressed by the regime scaler. Across the other four folds, GAPA either matches the GREEDY-5 core or is marginally lower in 2020 (Sharpe +0.99 versus +1.04), an acceptable trade for nearly eliminating the 2022 vulnerability. The average validation Sharpe improves from 1.67 to 1.95.
+
+Residual z-score MR (RZMR) is added on top of GAPA despite not surviving the greedy process on its own merits. Alone, it adds only modest improvement over the GREEDY-5 core (average validation Sharpe 1.71 versus 1.67). Combined with GAPA, however, it delivers clean marginal value. The 2022 fold is preserved (+1.33 versus +1.34), the 2023 fold improves slightly (+3.72 versus +3.60), and the 2021 fold volatility drops from 1.6\% to 1.3\% with max drawdown improving from -0.6\% to -0.5\%. The greedy process consistently ranked it as the 5th-best marginal addition, but the Sharpe-delta gate always eliminated it. Yet it is economically motivated. It operates on factor-residualized returns (a different data layer), rebalances at a 10-day frequency that fills a gap between the weekly and monthly sleeves, and achieves the highest efficiency ratio of any sleeve in the portfolio (2.677 in-sample) extracting the most return per unit of variance.
+
+Two strong candidates are set aside. Residual gap accumulation posts an average validation Sharpe of 1.78, but is dominated by GAPA across the full fold set. GAPA is higher in every fold except 2020 and 2021 and even those modest advantages come at the cost of more turnover (average 1.3\% daily versus 0.9\% for GAPA). Volatility acceleration posts an average validation Sharpe of 1.71 and is excluded because it raises max drawdown above the GREEDY-5 baseline in every single fold from -1.0\% in 2019 to -3.2\% in 2022. There is no fold where the Sharpe improvement justifies the consistent drawdown regression.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/sleeve_correlation_heatmap.png}
+    \caption{Return correlations over the in-sample period for the final portfolio sleeves.}
+    \label{fig:correlations}
+\end{figure}
+
+Figure~\ref{fig:correlations} shows that the final portfolio's sleeves maintain pairwise correlations below 0.35. The four MR sleeves (gated DPMR, XSMR, RZMR, and GAPA) show mild positive correlation, but are differentiated by time horizon, data source, and regime gating. The two sleeves operating on sector rotation signals (monotonic momentum and sector ETF momentum) are near-zero or mildly negatively correlated with the MR sleeves. Bear reversal has near-zero correlation with everything else because it is only active in a narrow regime.
+
+\subsection{Implementation}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/cost_sensitivity.png}
+    \caption{Portfolio and sleeve-level net Sharpe across transaction cost assumptions from 2 to 25 bps.}
+    \label{fig:cost-sensitivity}
+\end{figure}
+
+The final portfolio is scaled to 1.10 times gross exposure which raises annualized volatility to approximately 10\%. This is justified by the portfolio's regression results in Table~\ref{tab:portfolio-regression}. The portfolio has low beta (IS beta of 0.04, OOS beta of 0.03), low correlation to SPY (R-squared of 11\% IS), and the structural diversification across seven sleeves with distinct regime profiles. These results suggest that the portfolio's returns are driven by idiosyncratic cross-sectional signals rather than market direction. So moderate leverage amplifies alpha without proportionally increasing systematic risk.
+
+Figure~\ref{fig:cost-sensitivity} shows the portfolio's net Sharpe across transaction cost assumptions from 2 to 25 bps. The portfolio remains above 1.5 across the full range, declining gradually from 1.97 at 2 bps to 1.54 at 25 bps. Two high-turnover sleeves, DPMR and RZMR, go negative above 20 bps, but the remaining five sleeves are cost-insensitive enough to hold the portfolio together even at assumptions well above the 10 bps baseline.
+
+\section{Portfolio Evaluation}
+
+In-sample, the portfolio earns a net Sharpe of 1.91 across nine positive years (2015-2023) and averages approximately 20\% levered return at 9.6\% levered volatility (see Table~\ref{tab:annual-performance}). The result is strong, but not evenly distributed. The best years are those where multiple signal families fire simultaneously. The highest Sharpe year is 2019 at 3.59, a broad-participation bull where MR signals earn steadily and momentum sleeves benefit from persistent trends. The 2022 bear market (Sharpe 1.84) is the most distinctive year: bear reversal and gap accumulation generate returns while SPY falls 19.5\%, demonstrating that the portfolio is not just a bull-market strategy. Cross-sectional MR is the dominant IS contributor at 34\% of return, followed by sector ETF momentum at 28\% despite its lower Sharpe, because both carry the portfolio's largest weights and sustain activity across the most IS periods (see Table~\ref{tab:sleeve-attribution}).
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \begin{tabular}{clrrrr}
+        \toprule
+        Year & Period & Lev.\ Ret. & Lev.\ SR & Lev.\ Max DD & SPY Ret. \\
+        \midrule
+        2015 & IS &     7.6\% &    1.029 &  $-$4.0\% &  $-$0.8\% \\
+        2016 & IS &    33.3\% &    2.774 &  $-$6.9\% &   9.6\% \\
+        2017 & IS &    13.5\% &    1.850 &  $-$3.2\% &  19.4\% \\
+        2018 & IS &    18.4\% &    2.453 &  $-$6.1\% &  $-$6.3\% \\
+        2019 & IS &    26.7\% &    3.594 &  $-$3.0\% &  28.8\% \\
+        2020 & IS &    18.2\% &    1.202 &  $-$6.8\% &  16.2\% \\
+        2021 & IS &    10.3\% &    1.263 &  $-$3.6\% &  27.0\% \\
+        2022 & IS &    30.0\% &    1.843 & $-$11.4\% & $-$19.5\% \\
+        2023 & IS &    23.5\% &    2.288 &  $-$5.2\% &  24.3\% \\
+        \midrule
+        \textbf{2024} & \textbf{OOS} & $\mathbf{-4.6\%}$  & $\mathbf{-0.533}$ & $\mathbf{-8.0\%}$  & \textbf{23.3\%} \\
+        \textbf{2025} & \textbf{OOS} & $\mathbf{-9.8\%}$  & $\mathbf{-1.246}$ & $\mathbf{-12.2\%}$ & \textbf{16.4\%} \\
+        \textbf{2026} & \textbf{OOS} & \textbf{8.6\%}     & \textbf{0.512}    & $\mathbf{-18.3\%}$ & \textbf{10.9\%} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Annual performance summary under target volatility scaling. IS = in-sample (2015--2023), OOS = out-of-sample (2024--2026).}
+    \label{tab:annual-performance}
+\end{table}
+
+Figure~\ref{fig:oos-equity} shows that in the out-of-sample period the portfolio loses in 2024 and 2025 before partially recovering in 2026 (see OOS summary chart). The failure is concentrated in five of the seven sleeves, but the two survivors tell the story. Monotonic momentum is the strongest OOS performer at Sharpe +1.30. It is the one sleeve capable of profiting in the narrow-breadth environments of the OOS period. Cross-sectional MR is the only other positive sleeve and is essentially flat with a Sharpe of +0.10. Every other sleeve fails for the same underlying reason. Both 2024 and 2025 are persistent narrow-breadth bull markets concentrated in mega-cap leadership. There is a regime gap the portfolio is not able to handle.
+
+The sleeve-level failures are structurally coherent. Gap accumulation's trend-off gate keeps it inactive during OOS uptrends and when it does activate, the short-term MR reverts against persistent momentum. The gated distance-pairs MR sleeve loses because the 50\% breadth threshold barely triggers in a market where 2024 breadth averages 52.1\%, leaving the sleeve running in a regime where pairs MR consistently loses. Sector ETF momentum fires frequently because sector dispersion is elevated, but the dispersion is static rather than rotational. Technology leads persistently for months while other sectors lag. So the signal correctly identifies divergence and then bets on reversion that never happens. The gated distance-pairs sleeve accounts for 59.2\% of OOS turnover making it the most expensive failure.
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \begin{tabular}{lrrrrrrr}
+        \toprule
+        Sleeve & Weight & IS SR & OOS SR & IS Ret Contr & OOS Ret Contr & IS Risk Contr & OOS Risk Contr \\
+        \midrule
+        cs20         & 20.7\% &  1.097 &  0.103 &  34.1\% &   9.6\% & 37.5\% & 30.2\% \\
+        ssm20        & 13.9\% &  0.799 & -0.688 &  27.8\% & -62.3\% & 39.2\% & 24.4\% \\
+        ga3          & 16.9\% &  0.858 & -1.190 &  14.8\% & -71.6\% &  8.5\% & 14.2\% \\
+        brv20        & 13.3\% &  1.082 & -0.548 &   9.9\% & -47.6\% &  6.9\% & 15.0\% \\
+        ms252/b35x   & 10.9\% &  0.856 &  1.304 &   5.7\% & 117.4\% &  3.2\% & 11.7\% \\
+        dp1z60|nbo50 & 15.2\% &  0.478 & -1.052 &   4.8\% & -40.7\% &  3.8\% &  4.8\% \\
+        rz15         &  9.2\% &  0.504 & -0.335 &   2.9\% &  -4.9\% &  1.1\% & -0.3\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Sleeve attribution for the final 7-sleeve portfolio. Weights are IS-calibrated optimal weights held fixed in OOS. Return and Risk columns are each sleeve's share of total portfolio mean return and variance in each period.}
+    \label{tab:sleeve-attribution}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/oos_summary.png}
+    \caption{Portfolio equity curve from 2015 through April 2026, with the out-of-sample boundary at January 2024.}
+    \label{fig:oos-equity}
+\end{figure}
+
+\subsection{Benchmark Regression}
+
+Table~\ref{tab:portfolio-regression} shows the regression against SPY. It shows that the portfolio is largely market neutral, but raises questions about the robustness of the alpha. In-sample, the portfolio generates statistically significant alpha of 3.9\% annualized (t-statistic 5.61, p < 0.0001) with beta of 0.04. SPY explains only 11.4\% of IS return variation which supports the portfolio's returns are primarily idiosyncratic. Out-of-sample, alpha is -1.5\% annualized (t-statistic -0.85, p = 0.39) and is statistically indistinguishable from zero. This result is consistent with the regime-gap interpretation of OOS performance. The OOS degradation does not by itself prove overfitting, but it leaves open both regime failure and in-sample selection effects. Five of seven sleeves produce negative returns in the narrow-breadth bull regime that dominates the OOS period, while market neutrality still holds with OOS beta of 0.03 (p = 0.14) and R-squared of 2.6\%.
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \begin{tabular}{lrrrrr}
+        \toprule
+        Period & Alpha & 95\% CI & $t(\alpha)$ & Beta & $R^2$ \\
+        \midrule
+        IS (2015--2023)  & 3.9\% & [2.5\%, 5.3\%] &  5.61 & 0.043 & 0.114 \\
+        OOS (2024--2026) & $-$1.5\% & [$-$5.1\%, 2.0\%] & $-$0.85 & 0.026 & 0.026 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Regression of unlevered portfolio net returns on SPY.}
+    \label{tab:portfolio-regression}
+\end{table}
+
+\section{Risks}
+
+Each sleeve is designed for a specific market regime: MR signals profit in choppy, range-bound conditions, momentum signals profit in trending regimes, and bear reversal profits during drawdowns. The portfolio has no sleeve for the narrow-breadth bull market where a handful of stocks dominate index returns while the broader universe lags. That is the regime that dominates 2024 and 2025, and that is at least partially why the portfolio loses. The OOS sample also only covers approximately 2.5 years with two full calendar years of data, and it has not yet included a bear market or a broad-participation rally comparable to 2019. The regime gap diagnosis is plausible, but requires further evidence.
+
+The walkforward validation and conservative acceptance gates reduce overfitting risk substantially, but do not eliminate it. The greedy process optimizes net Sharpe on training data, and the parameter choices around fold structure, acceptance thresholds, and cost assumptions are themselves degrees of freedom. The IS alpha of 3.9\% degrades to a statistically insignificant -1.5\% OOS. Again the regime-gap explanation reasonably accounts for some of that degradation, but some IS-specific fitting is likely as well.
+
+\section{Conclusion}
+
+The research produces a market-neutral long-short equity portfolio with strong in-sample performance and near-zero beta across nine years. The construction is simple with twenty long and twenty short positions, equal-weighted by rank with regime gates and scalers as the primary degrees of freedom. What makes the portfolio work is the combination of signal diversity and regime-aware gating. Mean reversion signals provide the core return engine across choppy and volatile markets, momentum signals contribute in trending environments, and bear reversal adds some alpha during drawdowns. None of these individually survive all regimes, but together they cover enough of the IS regime distribution to produce consistent positive years. The walkforward greedy construction process enforces that diversity through conservative acceptance criteria and 10 bps of costs that together prevent the portfolio from collapsing into whatever worked best in the most recent training window.
+
+The OOS results expose a genuine weakness in the portfolio, i.e. the narrow-breadth bull markets of 2024-2025. All five mean reversion sleeves and the sector ETF momentum sleeve lose in this environment because their edge depends on either cross-sectional dispersion resolving through reversion or sector leadership changing. When leadership is static and persistent, then those bets consistently fail. Monotonic momentum is the only sleeve that profits OOS because it is the only one designed to ride persistence rather than fade it. The path forward is to find a dedicated narrow-breadth bull sleeve, something that can identify and go long concentrated leadership rather than betting against it. Candidates include large-cap relative momentum, within-sector relative strength conditioned on narrow breadth, or factor momentum. Until that sleeve exists, the portfolio will continue to struggle in the regime that has defined 2024 and 2025.
+
+\begin{thebibliography}{9}
+
+\bibitem{Chan2009}
+Chan, Ernest P.
+\textit{Quantitative Trading: How to Build Your Own Algorithmic Trading Business}.
+John Wiley \& Sons, 2009.
+
+\bibitem{Chan2013}
+Chan, Ernest P.
+\textit{Algorithmic Trading: Winning Strategies and Their Rationale}.
+Wiley, Wiley Trading series, 2013.
+
+\bibitem{Gatev2006}
+Gatev, Evan, William N.\ Goetzmann, and K.\ Geert Rouwenhorst.
+``Pairs Trading: Performance of a Relative Value Arbitrage Rule.''
+\textit{Review of Financial Studies}, 19(3):797--827, 2006.
+
+\bibitem{JegadeeshTitman1993}
+Jegadeesh, Narasimhan, and Sheridan Titman.
+``Returns to Buying Winners and Selling Losers: Implications for Stock Market Efficiency.''
+\textit{Journal of Finance}, 48(1):65--91, 1993.
+
+\bibitem{MoskowitzGrinblatt1999}
+Moskowitz, Tobias J., and Mark Grinblatt.
+``Do Industries Explain Momentum?''
+\textit{Journal of Finance}, 54(4):1249--1290, 1999.
+
+\end{thebibliography}
+
+\appendix
+
+\section{Annual Market Regime Summary}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{rp{5.5cm}rrrr}
+\toprule
+Year & Regime & SPY Ret. & SPY Vol. & Breadth & XS Disp. \\
+\midrule
+\multicolumn{6}{l}{\textit{In-sample}} \\
+2015 & Sideways, broad participation, weak trends         &  $-$0.8\% & 15.6\% & 53.6\% & 1.5\% \\
+2016 & Steady bull, improving trends, broad participation &    9.6\%  & 13.1\% & 58.2\% & 2.5\% \\
+2017 & Smooth bull, persistent trends, broad, low vol     &   19.5\%  &  6.8\% & 63.5\% & 1.3\% \\
+2018 & Choppy, high vol, frequent reversals               &  $-$6.4\% & 17.1\% & 49.8\% & 1.5\% \\
+2019 & Broad bull, persistent trends, healthy breadth     &   28.8\%  & 12.5\% & 51.8\% & 1.4\% \\
+2020 & High-vol recovery, powerful trends, high dispersion &  16.1\%  & 33.5\% & 43.8\% & 2.2\% \\
+2021 & Stable broad bull, persistent trends, low vol      &   27.0\%  & 13.1\% & 64.2\% & 1.6\% \\
+2022 & Bear market, high vol, concentrated weakness       & $-$19.6\% & 24.3\% & 29.3\% & 1.8\% \\
+2023 & Narrow leadership bull, high dispersion            &   24.5\%  & 13.2\% & 40.1\% & 1.6\% \\
+\midrule
+\multicolumn{6}{l}{\textit{Out-of-sample}} \\
+2024 & Trend-dominated bull, concentrated leadership      &   23.3\%  & 12.6\% & 52.1\% & 1.6\% \\
+2025 & Concentrated bull, narrow breadth, high vol shock  &   16.5\%  & 19.5\% & 38.5\% & 1.8\% \\
+\bottomrule
+\end{tabular}
+\caption{Annual market regime summary. Breadth is the mean daily percentage of S\&P 500 stocks above their 200-day moving average. XS Disp.\ is mean daily cross-sectional return dispersion across the universe.}
+\label{tab:regimes}
+\end{table}
+
+
+\end{document}

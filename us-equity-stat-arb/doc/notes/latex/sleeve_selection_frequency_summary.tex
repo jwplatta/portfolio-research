@@ -1,0 +1,21 @@
+\begin{table}[H]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabularx}{\textwidth}{p{0.22\textwidth} p{0.18\textwidth} >{\raggedright\arraybackslash}X}
+        \toprule
+        Signal Family & Selection Frequency & Observation \\
+        \midrule
+        Distance-Pairs MR  & Very High & Appeared in nearly every run and formed the portfolio core \\
+        Bear Reversal       & Very High & Most consistent non-seed sleeve; 4--5 of 5 folds across all runs \\
+        Monotonic Momentum  & High      & Consistently selected as a diversifier; breadth-35 gate preferred over breadth-40 \\
+        Cross-Sectional MR  & High      & Vol-scaled variant strongly preferred; 4--5 of 5 folds in every run \\
+        Sector ETF Momentum & High      & SSM20 selected 3--4 of 5 folds in all runs where it was available; absent from the gap-accum seed run due to pool composition, not signal weakness \\
+        Gap Accumulation    & Moderate  & Seed in its own run; supporting variants (GA3, RGA5) selected 1--3 of 5 folds in NBO runs \\
+        Residual MR         & Low       & Rarely selected by the greedy process; added post-hoc as a portfolio extension \\
+        Volatility Acceleration & Low   & Performance offset by high turnover costs at 10~bps \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Greedy walkforward selection frequency by signal family, aggregated across five seed-sleeve runs. Frequency reflects how often at least one variant from the family was selected per fold; ``Very High'' = 4--5/5 in most runs, ``High'' = 3--4/5 where available, ``Moderate'' = 1--3/5, ``Low'' = 0--1/5.}
+    \label{tab:selection_frequency}
+\end{table}
