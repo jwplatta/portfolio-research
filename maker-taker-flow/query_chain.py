@@ -69,6 +69,7 @@ def load_chain(sample_date: str, expiration: str, contract_type: str | None = No
           AND last > 0          -- only rows with a trade price
           AND bid > 0
           AND ask > 0
+          AND last BETWEEN bid AND ask  -- drop stale prints outside the current spread
         ORDER BY strike, contract_type, sampled_at
     """
     return duckdb.query(query).df()
