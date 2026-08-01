@@ -1,3 +1,3 @@
-# Portfolio Research
+# Research Workspace
 
-Workspace for developing, evaluating, and sharing trading ideas.
+Empirical research projects, experiments, and supporting tools across markets, machine learning, and LLM systems.
