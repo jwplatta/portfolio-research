@@ -33,6 +33,7 @@ dependencies = [
     "torch>=2.3,<2.4",
     "torchtext>=0.18,<0.19",
     "duckdb>=1.5.4",
+    "mlflow[genai]>=3.14.0",
 ]
 
 [dependency-groups]
