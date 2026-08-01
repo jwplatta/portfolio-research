@@ -57,3 +57,7 @@ docs/examples
 .claude/settings.local.json
 NOTES.md
 /**/out
+
+mlflow.db
+mlruns/
+artifacts/
