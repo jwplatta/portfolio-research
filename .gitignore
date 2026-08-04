@@ -61,3 +61,4 @@ NOTES.md
 mlflow.db
 mlruns/
 artifacts/
+/papers
