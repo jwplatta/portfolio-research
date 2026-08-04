@@ -4101,91 +4101,6 @@ wheels = [
 ]
 
 [[package]]
-name = "portfolio-research"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "altair" },
-    { name = "backtrader" },
-    { name = "duckdb" },
-    { name = "fredapi" },
-    { name = "gputil" },
-    { name = "ipykernel" },
-    { name = "jupyter" },
-    { name = "lean" },
-    { name = "matplotlib" },
-    { name = "mlflow", extra = ["genai"] },
-    { name = "mplfinance" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "pandas" },
-    { name = "pandas-market-calendars" },
-    { name = "playwright" },
-    { name = "playwright-stealth" },
-    { name = "python-dotenv" },
-    { name = "qstudy" },
-    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "seaborn" },
-    { name = "simfin" },
-    { name = "spacy" },
-    { name = "statsmodels" },
-    { name = "streamlit" },
-    { name = "ta" },
-    { name = "torch" },
-    { name = "torchtext" },
-    { name = "tqdm" },
-    { name = "yfinance" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "altair", specifier = ">=6.1.0" },
-    { name = "backtrader", specifier = ">=1.9.78.123" },
-    { name = "duckdb", specifier = ">=1.5.4" },
-    { name = "fredapi" },
-    { name = "gputil", specifier = ">=1.4.0" },
-    { name = "ipykernel", specifier = ">=7.1.0" },
-    { name = "jupyter", specifier = ">=1.1.1" },
-    { name = "lean" },
-    { name = "matplotlib", specifier = ">=3.10.8" },
-    { name = "mlflow", extras = ["genai"], specifier = ">=3.14.0" },
-    { name = "mplfinance", specifier = ">=0.12.10b0" },
-    { name = "numpy", specifier = ">=2.2.6" },
-    { name = "pandas", specifier = ">=2.3.3" },
-    { name = "pandas-market-calendars", specifier = ">=5.4.0" },
-    { name = "playwright", specifier = ">=1.60.0" },
-    { name = "playwright-stealth", specifier = ">=2.0.3" },
-    { name = "python-dotenv", specifier = ">=1.0.1" },
-    { name = "qstudy", editable = "../qstudy" },
-    { name = "scikit-learn" },
-    { name = "seaborn" },
-    { name = "simfin", specifier = ">=1.0.1" },
-    { name = "spacy", specifier = ">=3.8.7" },
-    { name = "statsmodels" },
-    { name = "streamlit", specifier = ">=1.50.0" },
-    { name = "ta", specifier = ">=0.11.0" },
-    { name = "torch", specifier = ">=2.3,<2.4" },
-    { name = "torchtext", specifier = ">=0.18,<0.19" },
-    { name = "tqdm", specifier = ">=4.67.3" },
-    { name = "yfinance" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "mypy", specifier = ">=1.19.1" },
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "ruff", specifier = ">=0.14.9" },
-]
-
-[[package]]
 name = "preshed"
 version = "3.0.13"
 source = { registry = "https://pypi.org/simple" }
@@ -5200,6 +5115,93 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/24/36/7180e7f077c38108945dbbdf60fe04db681c3feb6e96419f8c6dc8723741/requests-2.34.1.tar.gz", hash = "sha256:0fc5669f2b69704449fe1552360bd2a73a54512dfd03e65529157f1513322beb", size = 142783, upload-time = "2026-05-13T19:20:24.662Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/15/5a/4a949d170476de3c04ac036b5466422fbcbf348a917d8042eedf2cac7d1b/requests-2.34.1-py3-none-any.whl", hash = "sha256:bf38a3ff993960d3dd819c08862c40b3c703306eb7c744fcd9f4ddbb95b548f0", size = 73085, upload-time = "2026-05-13T19:20:22.827Z" },
+]
+
+[[package]]
+name = "research"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "altair" },
+    { name = "backtrader" },
+    { name = "duckdb" },
+    { name = "fredapi" },
+    { name = "gputil" },
+    { name = "ipykernel" },
+    { name = "jupyter" },
+    { name = "lean" },
+    { name = "matplotlib" },
+    { name = "mlflow", extra = ["genai"] },
+    { name = "mplfinance" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "pandas" },
+    { name = "pandas-market-calendars" },
+    { name = "playwright" },
+    { name = "playwright-stealth" },
+    { name = "python-dotenv" },
+    { name = "qstudy" },
+    { name = "rich" },
+    { name = "scikit-learn", version = "1.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "seaborn" },
+    { name = "simfin" },
+    { name = "spacy" },
+    { name = "statsmodels" },
+    { name = "streamlit" },
+    { name = "ta" },
+    { name = "torch" },
+    { name = "torchtext" },
+    { name = "tqdm" },
+    { name = "yfinance" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "altair", specifier = ">=6.1.0" },
+    { name = "backtrader", specifier = ">=1.9.78.123" },
+    { name = "duckdb", specifier = ">=1.5.4" },
+    { name = "fredapi" },
+    { name = "gputil", specifier = ">=1.4.0" },
+    { name = "ipykernel", specifier = ">=7.1.0" },
+    { name = "jupyter", specifier = ">=1.1.1" },
+    { name = "lean" },
+    { name = "matplotlib", specifier = ">=3.10.8" },
+    { name = "mlflow", extras = ["genai"], specifier = ">=3.14.0" },
+    { name = "mplfinance", specifier = ">=0.12.10b0" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "pandas", specifier = ">=2.3.3" },
+    { name = "pandas-market-calendars", specifier = ">=5.4.0" },
+    { name = "playwright", specifier = ">=1.60.0" },
+    { name = "playwright-stealth", specifier = ">=2.0.3" },
+    { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "qstudy", editable = "../qstudy" },
+    { name = "rich", specifier = ">=15.0.0" },
+    { name = "scikit-learn" },
+    { name = "seaborn" },
+    { name = "simfin", specifier = ">=1.0.1" },
+    { name = "spacy", specifier = ">=3.8.7" },
+    { name = "statsmodels" },
+    { name = "streamlit", specifier = ">=1.50.0" },
+    { name = "ta", specifier = ">=0.11.0" },
+    { name = "torch", specifier = ">=2.3,<2.4" },
+    { name = "torchtext", specifier = ">=0.18,<0.19" },
+    { name = "tqdm", specifier = ">=4.67.3" },
+    { name = "yfinance" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.19.1" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "ruff", specifier = ">=0.14.9" },
 ]
 
 [[package]]
