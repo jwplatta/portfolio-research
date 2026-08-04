@@ -1,5 +1,5 @@
 [project]
-name = "portfolio-research"
+name = "research"
 version = "0.1.0"
 description = "Research workspace for developing and evaluating trading ideas"
 readme = "README.md"
@@ -34,6 +34,7 @@ dependencies = [
     "torchtext>=0.18,<0.19",
     "duckdb>=1.5.4",
     "mlflow[genai]>=3.14.0",
+    "rich>=15.0.0",
 ]
 
 [dependency-groups]
