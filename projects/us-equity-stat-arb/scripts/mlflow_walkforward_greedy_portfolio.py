@@ -177,8 +177,15 @@ def log_aggregate_metrics(fold_results_path: Path) -> None:
     ]
     for column in aggregate_columns:
         if column in fold_results:
-            log_metric_if_number(metric_name(column, "avg"), fold_results[column].mean())
-            log_metric_if_number(metric_name(column, "min"), fold_results[column].min())
+            period_prefix = "validation" if column.startswith("Validation") else "train"
+            log_metric_if_number(
+                metric_name(column, f"avg_{period_prefix}"),
+                fold_results[column].mean(),
+            )
+            log_metric_if_number(
+                metric_name(column, f"min_{period_prefix}"),
+                fold_results[column].min(),
+            )
 
 
 def main() -> None:
